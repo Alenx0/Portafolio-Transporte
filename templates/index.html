@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <meta name="description" content="Líderes en transporte de carga y logística para la minería en Chile. Seguridad, eficiencia y compromiso en cada ruta. ¡Solicita tu cotización!">
+{% endblock %}
+
+{% block content %}
+<main>
+    <section id="hero" class="fade-in-section">
+        <div class="carousel-container">
+            <div class="carousel-slide carousel-slide-1">
+                <div class="slide-content">
+                    <h3>Conectando Chile de Extremo a Extremo</h3>
+                    <p>Tu carga segura, nuestro compromiso.</p>
+                </div>
+            </div>
+            <div class="carousel-slide carousel-slide-2">
+                <div class="slide-content">
+                    <h3>Logística para Desafíos Mayores</h3>
+                    <p>Expertos en transporte de equipos y materiales pesados.</p>
+                </div>
+            </div>
+            <div class="carousel-slide carousel-slide-3">
+                <div class="slide-content">
+                    <h3>Seguridad: Nuestra Prioridad</h3>
+                    <p>Profesionalismo y cuidado en cada kilómetro.</p>
+                </div>
+            </div>
+            <div class="carousel-slide carousel-slide-4">
+                <div class="slide-content">
+                    <h3>Rutas Desafiantes, Entregas Puntuales</h3>
+                    <p>Navegamos la geografía chilena para llegar donde nos necesitas.</p>
+                </div>
+            </div>
+            <div class="carousel-slide carousel-slide-5">
+                <div class="slide-content">
+                    <h3>Nuestro Equipo, Tu Confianza</h3>
+                    <p>Dedicación y experiencia en cada operación de carga.</p>
+                </div>
+            </div>
+            <div class="carousel-slide carousel-slide-6">
+                <div class="slide-content">
+                    <h3>La Belleza del Sur en Cada Trayecto</h3>
+                    <p>Transportando sueños a través de paisajes inolvidables.</p>
+                </div>
+            </div>
+            <div class="carousel-slide carousel-slide-7">
+                <div class="slide-content">
+                    <h3>Estrategia y Eficiencia</h3>
+                    <p>Planificación detallada para un servicio sin contratiempos.</p>
+                </div>
+            </div>
+            <div class="carousel-slide carousel-slide-8">
+                <div class="slide-content">
+                    <h3>Innovación en Logística</h3>
+                    <p>Tecnología y experiencia al servicio de tu empresa.</p>
+                </div>
+            </div>
+            <div class="carousel-navigation">
+                <button class="prev" aria-label="Diapositiva anterior">&#10094;</button>
+                <button class="next" aria-label="Diapositiva siguiente">&#10095;</button>
+            </div>
+            <div class="carousel-dots"></div>
+        </div>
+    </section>
+
+    <!-- ESTA ES LA SECCIÓN QUE PROBABLEMENTE FALTABA -->
+    <section id="sobre-nosotros" class="fade-in-section">
+        <div class="container">
+            <h2>Sobre Nosotros</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>En <strong>Transporte Unión Salazar</strong>, somos líderes en el transporte de carga por carretera a nivel nacional, con una sólida especialización en la industria minera. Nuestra trayectoria se caracteriza por la seriedad, responsabilidad y un compromiso inquebrantable con la eficiencia y la seguridad.</p>
+                    <p>Contamos con una moderna flota de vehículos y un equipo de profesionales altamente capacitados, lo que nos permite garantizar la entrega oportuna y segura de cada carga, incluso en los entornos más desafiantes.</p>
+                </div>
+                <div class="about-image">
+                    <img src="{{ url_for('static', filename='img/sobre-nosotros.jpeg') }}" alt="Camiones de Transporte Unión Salazar en operación">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="servicios" class="fade-in-section">
+        <div class="container">
+            <h2>Nuestros Servicios</h2>
+            <div class="services-grid">
+                <div class="service-item">
+                    <i class="fas fa-truck-moving"></i>
+                    <h3>Transporte de Carga General</h3>
+                    <p>Movilizamos todo tipo de carga a nivel nacional, con puntualidad y seguridad.</p>
+                </div>
+                <div class="service-item">
+                    <i class="fas fa-hard-hat"></i>
+                    <h3>Logística para la Minería</h3>
+                    <p>Especialistas en transporte para faenas mineras, con altos estándares de seguridad.</p>
+                </div>
+                <div class="service-item">
+                    <i class="fas fa-box"></i>
+                    <h3>Cargas Sobredimensionadas</h3>
+                    <p>Expertos en el manejo y transporte de cargas con dimensiones o pesos especiales.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="compromiso-ambiental" class="fade-in-section">
+        <div class="container">
+            <h2>Compromiso Ambiental</h2>
+            <div class="environmental-content">
+                <div class="environmental-image">
+                    <img src="{{ url_for('static', filename='img/ambiental.jpeg') }}" alt="Paisaje natural que representa el compromiso ambiental">
+                </div>
+                <div class="environmental-text">
+                    <p>En Transporte Unión Salazar, entendemos la importancia de operar de manera sostenible y responsable con el medio ambiente. Estamos comprometidos con la reducción de nuestra huella de carbono a través de la optimización de rutas, mantenimiento preventivo y capacitación de nuestro personal.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

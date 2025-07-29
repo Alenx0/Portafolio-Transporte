@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Acceso de Usuarios{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/users_styles.css') }}">
+    <meta name="description" content="Página de acceso y registro para usuarios de Transporte Unión Salazar.">
+{% endblock %}
+
+{% block content %}
+<main class="user-access-main">
+
+    <section id="login-section" class="fade-in-section">
+        <h2>Iniciar Sesión</h2>
+        <form id="login-form">
+            <div class="form-group"><label for="login-username">Usuario:</label><input type="text" id="login-username" name="username" required></div>
+            <div class="form-group"><label for="login-password">Contraseña:</label><input type="password" id="login-password" name="password" required></div>
+            <button type="submit">Entrar</button>
+            <p id="login-message" class="form-message hidden"></p>
+        </form>
+        <p class="toggle-form-text">¿No tienes una cuenta? <a href="#" id="show-register-link">Regístrate aquí</a></p>
+    </section>
+
+    <section id="register-section" class="fade-in-section hidden">
+        <h2>Crear Cuenta</h2>
+        <form id="register-form">
+            <div class="form-group"><label for="register-username">Elige un nombre de usuario:</label><input type="text" id="register-username" name="username" required></div>
+            <div class="form-group"><label for="register-password">Elige una contraseña:</label><input type="password" id="register-password" name="password" required></div>
+            <button type="submit">Registrarse</button>
+            <p id="register-message" class="form-message hidden"></p>
+        </form>
+        <p class="toggle-form-text">¿Ya tienes una cuenta? <a href="#" id="show-login-link">Inicia sesión</a></p>
+    </section>
+
+    <section id="dashboard-section" class="fade-in-section hidden">
+        <div class="dashboard-header">
+            <h2>Bienvenido, <span id="welcome-username"></span>!</h2>
+            <button id="logout-button">Cerrar Sesión</button>
+        </div>
+        
+        <div id="admin-panel-container"></div>
+
+        <div class="tabs conductor-view">
+            <button class="tab-link active" data-tab="calendar-tab">Calendario de Turnos</button>
+            <button class="tab-link" data-tab="expenses-tab">Rendición de Gastos</button>
+        </div>
+
+        <div id="calendar-tab" class="tab-content conductor-view active">
+            <div class="shift-config-container">
+                <h3>Configura tu Turno</h3>
+                <form id="shift-config-form">
+                    <div class="form-group"><label for="shift-type-select">Tipo de Turno:</label><select id="shift-type-select"><option value="3x3">3x3</option><option value="7x7" selected>7x7</option><option value="14x14">14x14</option></select></div>
+                    <div class="form-group"><label for="shift-start-date-input">Fecha de Inicio del Ciclo:</label><input type="date" id="shift-start-date-input" required></div>
+                    <button type="submit" id="save-shift-btn">Guardar Turno</button>
+                </form>
+                <p id="shift-message" class="form-message hidden"></p>
+            </div>
+            <div id="calendar-container"></div>
+        </div>
+
+        <div id="expenses-tab" class="tab-content conductor-view">
+            <div id="start-period-container">
+                <h3>Iniciar Nueva Rendición</h3>
+                <form id="start-period-form">
+                    <div class="form-grid">
+                        <div class="form-group"><label for="patente">Patente Vehículo:</label><input type="text" id="patente" required></div>
+                        <div class="form-group"><label for="rut">RUT Conductor:</label><input type="text" id="rut" required></div>
+                        <div class="form-group"><label for="trip-origin">Origen del Viaje:</label><input type="text" id="trip-origin" required></div>
+                        <div class="form-group"><label for="trip-destination">Destino del Viaje:</label><input type="text" id="trip-destination" required></div>
+                        <div class="form-group full-width"><label for="initial-amount">Monto Inicial Entregado ($):</label><input type="number" id="initial-amount" step="0.01" required></div>
+                    </div>
+                    <button type="submit">Comenzar Período</button>
+                </form>
+            </div>
+            <div id="active-period-container" class="hidden">
+                <div class="period-summary">
+                    <h3>Rendición en Curso</h3>
+                    <div class="summary-details">
+                        <p><strong>Patente:</strong> <span id="summary-patente"></span></p>
+                        <p><strong>Viaje:</strong> <span id="summary-trip"></span></p>
+                        <p><strong>Monto Inicial:</strong> $<span id="summary-initial"></span></p>
+                        <p><strong>Total Gastado:</strong> $<span id="summary-spent"></span></p>
+                        <p class="saldo"><strong>Saldo Restante:</strong> $<span id="summary-balance"></span></p>
+                    </div>
+                </div>
+                <h4>Añadir Nuevo Gasto</h4>
+                <form id="add-expense-form">
+                    <div class="form-grid expense-grid">
+                        <div class="form-group"><label for="expense-category">Categoría:</label><select id="expense-category" required><option value="Peajes">Peajes</option><option value="Viáticos">Viáticos</option><option value="Combustible">Combustible</option><option value="Estacionamiento">Estacionamiento</option><option value="Alojamiento">Alojamiento</option><option value="Vulcanización">Vulcanización</option><option value="BlueMax">BlueMax</option><option value="Supermercado">Supermercado</option><option value="Otros">Otros</option></select></div>
+                        <div class="form-group"><label for="expense-amount">Monto ($):</label><input type="number" id="expense-amount" step="0.01" required></div>
+                        <div class="form-group full-width"><label for="expense-notes">Notas (Opcional):</label><input type="text" id="expense-notes"></div>
+                    </div>
+                    <button type="submit">Agregar Gasto</button>
+                </form>
+                <h4>Gastos Registrados</h4>
+                <div class="table-container">
+                    <table id="expenses-table">
+                        <thead><tr><th>Fecha</th><th>Categoría</th><th>Notas</th><th>Monto</th><th>Acciones</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="admin-driver-details-view" class="hidden">
+            <button id="back-to-list-btn">&larr; Volver a la Lista</button>
+            <h3 id="details-driver-name"></h3>
+            <div class="tabs">
+                <button class="tab-link active" data-tab="admin-calendar-tab">Calendario</button>
+                <button class="tab-link" data-tab="admin-expenses-tab">Rendición</button>
+            </div>
+            <div id="admin-calendar-tab" class="tab-content active">
+                <div id="admin-calendar-container"></div>
+            </div>
+            <div id="admin-expenses-tab" class="tab-content">
+                <div id="admin-active-period-container" class="hidden">
+                    <div class="period-summary">
+                        <h3>Rendición en Curso</h3>
+                        <div class="summary-details">
+                            <p><strong>Patente:</strong> <span id="admin-summary-patente"></span></p>
+                            <p><strong>Viaje:</strong> <span id="admin-summary-trip"></span></p>
+                            <p><strong>Monto Inicial:</strong> $<span id="admin-summary-initial"></span></p>
+                            <p><strong>Total Gastado:</strong> $<span id="admin-summary-spent"></span></p>
+                            <p class="saldo"><strong>Saldo Restante:</strong> $<span id="admin-summary-balance"></span></p>
+                        </div>
+                    </div>
+                    <h4>Gastos Registrados</h4>
+                    <div class="table-container">
+                        <table id="admin-expenses-table">
+                            <thead><tr><th>Fecha</th><th>Categoría</th><th>Notas</th><th>Monto</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="admin-no-period-container">
+                    <p>Este conductor no tiene una rendición de gastos activa.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/users_script.js') }}"></script>
+{% endblock %}
