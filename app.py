@@ -1,6 +1,6 @@
 # =================================================================
 # APLICACIÓN FLASK PARA TRANSPORTE UNIÓN SALAZAR
-# Versión 8.1 - Modelo de Usuario con más Detalles
+# Versión 8.0 - Sincronizada y Robusta
 # =================================================================
 
 from flask import Flask, render_template, request, jsonify
@@ -19,7 +19,10 @@ app = Flask(__name__)
 CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://transporte_user:montana33@localhost:5432/transporte_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Configuración Anti-Caché para Desarrollo
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -33,28 +36,13 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='conductor')
-    
-    # --- NUEVAS COLUMNAS PARA DETALLES DEL CONDUCTOR ---
-    rut = db.Column(db.String(12), nullable=True, unique=True)
-    phone = db.Column(db.String(15), nullable=True)
-
     shift_type = db.Column(db.String(10), nullable=True, default='7x7')
     shift_start_date = db.Column(db.Date, nullable=True, default=date.today)
     work_periods = db.relationship('WorkPeriod', backref='worker', lazy=True, cascade="all, delete-orphan")
 
     def set_password(self, password): self.password_hash = generate_password_hash(password)
     def check_password(self, password): return check_password_hash(self.password_hash, password)
-    
-    # --- FUNCIÓN to_dict ACTUALIZADA ---
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "username": self.username,
-            "role": self.role,
-            "rut": self.rut or "No asignado",
-            "phone": self.phone or "No asignado",
-            "shift_type": self.shift_type or "No asignado"
-        }
+    def to_dict(self): return {"id": self.id, "username": self.username, "role": self.role}
     def __repr__(self): return f'<User {self.username}>'
 
 class WorkPeriod(db.Model):
@@ -62,24 +50,13 @@ class WorkPeriod(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     start_date = db.Column(db.Date, nullable=False, default=date.today)
     patente = db.Column(db.String(10), nullable=False)
-    # ELIMINAMOS EL RUT DE AQUÍ
+    rut = db.Column(db.String(12), nullable=False)
     trip_origin = db.Column(db.String(100), nullable=False)
     trip_destination = db.Column(db.String(100), nullable=False)
     initial_amount = db.Column(db.Numeric(10, 2), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     expenses = db.relationship('Expense', backref='period', lazy=True, cascade="all, delete-orphan")
-    
-    # --- FUNCIÓN to_dict ACTUALIZADA ---
-    def to_dict(self): 
-        return {
-            "id": self.id, 
-            "start_date": self.start_date.isoformat(), 
-            "patente": self.patente, 
-            "rut": self.worker.rut, # Obtenemos el RUT desde el usuario asociado
-            "trip_origin": self.trip_origin, 
-            "trip_destination": self.trip_destination, 
-            "initial_amount": float(self.initial_amount)
-        }
+    def to_dict(self): return {"id": self.id, "start_date": self.start_date.isoformat(), "patente": self.patente, "rut": self.rut, "trip_origin": self.trip_origin, "trip_destination": self.trip_destination, "initial_amount": float(self.initial_amount)}
 
 class Expense(db.Model):
     __tablename__ = 'expense'
@@ -93,7 +70,7 @@ class Expense(db.Model):
 
 
 # -----------------------------------------------------------------
-# 3. RUTAS Y ENDPOINTS (La ruta create_work_period está actualizada)
+# 3. RUTAS Y ENDPOINTS
 # -----------------------------------------------------------------
 @app.context_processor
 def inject_current_year():
@@ -109,15 +86,7 @@ def register():
     data = request.get_json();
     if not data or not data.get('username') or not data.get('password'): return jsonify({"success": False, "message": "Faltan datos."}), 400
     if User.query.filter_by(username=data.get('username')).first(): return jsonify({"success": False, "message": "El nombre de usuario ya existe."}), 409
-    # Ahora el RUT y el teléfono son parte del registro
-    new_user = User(
-        username=data.get('username'),
-        rut=data.get('rut'),
-        phone=data.get('phone')
-    )
-    new_user.set_password(data.get('password'))
-    db.session.add(new_user)
-    db.session.commit()
+    new_user = User(username=data.get('username')); new_user.set_password(data.get('password')); db.session.add(new_user); db.session.commit()
     return jsonify({"success": True, "message": "¡Usuario registrado!"}), 201
 
 @app.route('/api/login', methods=['POST'])
@@ -126,7 +95,7 @@ def login():
     if not data or not data.get('username') or not data.get('password'): return jsonify({"success": False, "message": "Faltan datos."}), 400
     user = User.query.filter_by(username=data.get('username')).first()
     if not user or not user.check_password(data.get('password')): return jsonify({"success": False, "message": "Usuario o contraseña incorrectos."}), 401
-    return jsonify({"success": True, "message": "¡Login exitoso!", "user": user.to_dict() }), 200
+    return jsonify({"success": True, "message": "¡Login exitoso!", "user": {"username": user.username, "shift_type": user.shift_type, "shift_start_date": user.shift_start_date.isoformat() if user.shift_start_date else None, "role": user.role }}), 200
 
 @app.route('/api/user/shift', methods=['GET', 'POST'])
 def handle_shift():
@@ -145,8 +114,7 @@ def handle_shift():
 def create_work_period():
     data = request.get_json(); user = User.query.filter_by(username=data.get('username')).first()
     if not user: return jsonify({"success": False, "message": "Usuario no encontrado."}), 404
-    # Ya no necesitamos el RUT aquí, lo tomamos del usuario
-    new_period = WorkPeriod(patente=data.get('patente'), trip_origin=data.get('trip_origin'), trip_destination=data.get('trip_destination'), initial_amount=data.get('initial_amount'), worker=user)
+    new_period = WorkPeriod(patente=data.get('patente'), rut=data.get('rut'), trip_origin=data.get('trip_origin'), trip_destination=data.get('trip_destination'), initial_amount=data.get('initial_amount'), worker=user)
     db.session.add(new_period); db.session.commit()
     return jsonify({"success": True, "message": "Período de trabajo iniciado.", "period": new_period.to_dict()}), 201
 
@@ -161,7 +129,7 @@ def get_expense_data():
 
 @app.route('/api/expenses', methods=['POST'])
 def add_expense():
-    data = request.get_json(); work_period = db.session.get(WorkPeriod, data.get('period_id'))
+    data = request.get_json(); work_period = WorkPeriod.query.get(data.get('period_id'))
     if not work_period: return jsonify({"success": False, "message": "Período de trabajo no encontrado."}), 404
     new_expense = Expense(category=data.get('category'), amount=data.get('amount'), notes=data.get('notes'), period=work_period)
     db.session.add(new_expense); db.session.commit()
@@ -169,7 +137,7 @@ def add_expense():
 
 @app.route('/api/expenses/<int:expense_id>', methods=['DELETE'])
 def delete_expense(expense_id):
-    expense = db.session.get(Expense, expense_id)
+    expense = Expense.query.get(expense_id)
     if not expense: return jsonify({"success": False, "message": "Gasto no encontrado."}), 404
     db.session.delete(expense); db.session.commit()
     return jsonify({"success": True, "message": "Gasto eliminado correctamente."})
