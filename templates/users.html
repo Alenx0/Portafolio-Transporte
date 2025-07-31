@@ -14,8 +14,8 @@
     <section id="login-section" class="fade-in-section">
         <h2>Iniciar Sesión</h2>
         <form id="login-form">
-            <div class="form-group"><label for="login-username">Usuario:</label><input type="text" id="login-username" name="username" required></div>
-            <div class="form-group"><label for="login-password">Contraseña:</label><input type="password" id="login-password" name="password" required></div>
+            <div class="form-group"><label for="login-username">Usuario:</label><input type="text" id="login-username" name="username" required autocomplete="username"></div>
+            <div class="form-group"><label for="login-password">Contraseña:</label><input type="password" id="login-password" name="password" required autocomplete="current-password"></div>
             <button type="submit">Entrar</button>
             <p id="login-message" class="form-message hidden"></p>
         </form>
@@ -25,8 +25,8 @@
     <section id="register-section" class="fade-in-section hidden">
         <h2>Crear Cuenta</h2>
         <form id="register-form">
-            <div class="form-group"><label for="register-username">Elige un nombre de usuario:</label><input type="text" id="register-username" name="username" required></div>
-            <div class="form-group"><label for="register-password">Elige una contraseña:</label><input type="password" id="register-password" name="password" required></div>
+            <div class="form-group"><label for="register-username">Elige un nombre de usuario:</label><input type="text" id="register-username" name="username" required autocomplete="username"></div>
+            <div class="form-group"><label for="register-password">Elige una contraseña:</label><input type="password" id="register-password" name="password" required autocomplete="new-password"></div>
             <button type="submit">Registrarse</button>
             <p id="register-message" class="form-message hidden"></p>
         </form>
@@ -49,6 +49,13 @@
         <div id="calendar-tab" class="tab-content conductor-view active">
             <div class="shift-config-container">
                 <h3>Configura tu Turno</h3>
+                <div id="shift-display-view" class="hidden">
+                    <div class="current-shift-info">
+                        <p><strong>Tu turno actual es:</strong> <span id="display-shift-type"></span></p>
+                        <p><strong>Iniciando el:</strong> <span id="display-shift-start-date"></span></p>
+                    </div>
+                    <button id="change-shift-btn" class="action-btn">Cambiar Turno</button>
+                </div>
                 <form id="shift-config-form">
                     <div class="form-group"><label for="shift-type-select">Tipo de Turno:</label><select id="shift-type-select"><option value="3x3">3x3</option><option value="7x7" selected>7x7</option><option value="14x14">14x14</option></select></div>
                     <div class="form-group"><label for="shift-start-date-input">Fecha de Inicio del Ciclo:</label><input type="date" id="shift-start-date-input" required></div>
@@ -56,7 +63,18 @@
                 </form>
                 <p id="shift-message" class="form-message hidden"></p>
             </div>
-            <div id="calendar-container"></div>
+            <div id="calendar-container">
+                <div class="calendar-legend">
+                    <div><span class="day-cell-legend work"></span> Trabajo</div>
+                    <div><span class="day-cell-legend off"></span> Descanso</div>
+                </div>
+                <div class="calendar-header">
+                    <button id="prev-month-btn" aria-label="Mes anterior">&larr;</button>
+                    <h4 id="month-title-display" class="month-title"></h4>
+                    <button id="next-month-btn" aria-label="Mes siguiente">&rarr;</button>
+                </div>
+                <div class="month-grid-container"></div>
+            </div>
         </div>
 
         <div id="expenses-tab" class="tab-content conductor-view">
@@ -64,32 +82,35 @@
                 <h3>Iniciar Nueva Rendición</h3>
                 <form id="start-period-form">
                     <div class="form-grid">
-                        <div class="form-group"><label for="patente">Patente Vehículo:</label><input type="text" id="patente" required></div>
-                        <div class="form-group"><label for="rut">RUT Conductor:</label><input type="text" id="rut" required></div>
-                        <div class="form-group"><label for="trip-origin">Origen del Viaje:</label><input type="text" id="trip-origin" required></div>
-                        <div class="form-group"><label for="trip-destination">Destino del Viaje:</label><input type="text" id="trip-destination" required></div>
-                        <div class="form-group full-width"><label for="initial-amount">Monto Inicial Entregado ($):</label><input type="number" id="initial-amount" step="0.01" required></div>
+                        <div class="form-group"><label for="patente">Patente Vehículo:</label><input type="text" id="patente" name="patente" required></div>
+                        <div class="form-group"><label for="rut">RUT Conductor:</label><input type="text" id="rut" name="rut" required></div>
+                        <div class="form-group"><label for="trip-origin">Origen del Viaje:</label><input type="text" id="trip-origin" name="trip-origin" required></div>
+                        <div class="form-group"><label for="trip-destination">Destino del Viaje:</label><input type="text" id="trip-destination" name="trip-destination" required></div>
+                        <div class="form-group full-width"><label for="initial-amount">Monto Inicial Entregado ($):</label><input type="text" inputmode="numeric" id="initial-amount" name="initial-amount" required></div>
                     </div>
                     <button type="submit">Comenzar Período</button>
                 </form>
             </div>
             <div id="active-period-container" class="hidden">
                 <div class="period-summary">
-                    <h3>Rendición en Curso</h3>
+                    <div class="summary-header">
+                        <h3>Rendición en Curso</h3>
+                        <button id="close-period-btn" class="close-btn">Cerrar Viaje y Finalizar</button>
+                    </div>
                     <div class="summary-details">
                         <p><strong>Patente:</strong> <span id="summary-patente"></span></p>
                         <p><strong>Viaje:</strong> <span id="summary-trip"></span></p>
-                        <p><strong>Monto Inicial:</strong> $<span id="summary-initial"></span></p>
-                        <p><strong>Total Gastado:</strong> $<span id="summary-spent"></span></p>
-                        <p class="saldo"><strong>Saldo Restante:</strong> $<span id="summary-balance"></span></p>
+                        <p><strong>Monto Inicial:</strong> <span id="summary-initial"></span></p>
+                        <p><strong>Total Gastado:</strong> <span id="summary-spent"></span></p>
+                        <p class="saldo"><strong>Saldo Restante:</strong> <span id="summary-balance"></span></p>
                     </div>
                 </div>
                 <h4>Añadir Nuevo Gasto</h4>
                 <form id="add-expense-form">
                     <div class="form-grid expense-grid">
-                        <div class="form-group"><label for="expense-category">Categoría:</label><select id="expense-category" required><option value="Peajes">Peajes</option><option value="Viáticos">Viáticos</option><option value="Combustible">Combustible</option><option value="Estacionamiento">Estacionamiento</option><option value="Alojamiento">Alojamiento</option><option value="Vulcanización">Vulcanización</option><option value="BlueMax">BlueMax</option><option value="Supermercado">Supermercado</option><option value="Otros">Otros</option></select></div>
-                        <div class="form-group"><label for="expense-amount">Monto ($):</label><input type="number" id="expense-amount" step="0.01" required></div>
-                        <div class="form-group full-width"><label for="expense-notes">Notas (Opcional):</label><input type="text" id="expense-notes"></div>
+                        <div class="form-group"><label for="expense-category">Categoría:</label><select id="expense-category" name="expense-category" required><option value="Peajes">Peajes</option><option value="Viáticos">Viáticos</option><option value="Combustible">Combustible</option><option value="Estacionamiento">Estacionamiento</option><option value="Alojamiento">Alojamiento</option><option value="Vulcanización">Vulcanización</option><option value="BlueMax">BlueMax</option><option value="Supermercado">Supermercado</option><option value="Otros">Otros</option></select></div>
+                        <div class="form-group"><label for="expense-amount">Monto ($):</label><input type="text" id="expense-amount" name="expense-amount" inputmode="numeric" required></div>
+                        <div class="form-group full-width"><label for="expense-notes">Notas (Opcional):</label><input type="text" id="expense-notes" name="expense-notes"></div>
                     </div>
                     <button type="submit">Agregar Gasto</button>
                 </form>
@@ -101,43 +122,50 @@
                     </table>
                 </div>
             </div>
+            <div id="history-container" class="conductor-view">
+                <hr>
+                <h4>Historial de Viajes Cerrados</h4>
+                <div id="history-list-container"></div>
+            </div>
         </div>
 
         <div id="admin-driver-details-view" class="hidden">
             <button id="back-to-list-btn">&larr; Volver a la Lista</button>
             <h3 id="details-driver-name"></h3>
             <div class="tabs">
-                <button class="tab-link active" data-tab="admin-calendar-tab">Calendario</button>
-                <button class="tab-link" data-tab="admin-expenses-tab">Rendición</button>
+                <button class="tab-link active" data-tab="admin-expenses-tab">Rendición</button>
+                <button class="tab-link" data-tab="admin-calendar-tab">Calendario</button>
             </div>
-            <div id="admin-calendar-tab" class="tab-content active">
-                <div id="admin-calendar-container"></div>
+            <div id="admin-expenses-tab" class="tab-content active">
+                <div id="admin-active-period-container" class="hidden"><div class="period-summary"><h3>Rendición en Curso</h3><div class="summary-details"><p><strong>Patente:</strong> <span id="admin-summary-patente"></span></p><p><strong>Viaje:</strong> <span id="admin-summary-trip"></span></p><p><strong>Monto Inicial:</strong> <span id="admin-summary-initial"></span></p><p><strong>Total Gastado:</strong> <span id="admin-summary-spent"></span></p><p class="saldo"><strong>Saldo Restante:</strong> <span id="admin-summary-balance"></span></p></div></div><h4>Gastos Registrados</h4><div class="table-container"><table id="admin-expenses-table"><thead><tr><th>Fecha</th><th>Categoría</th><th>Notas</th><th>Monto</th></tr></thead><tbody></tbody></table></div></div>
+                <div id="admin-no-period-container"><p>Este conductor no tiene una rendición de gastos activa.</p></div>
+                <div id="admin-history-container"><hr><h4>Historial de Viajes Cerrados</h4><div id="admin-history-list-container"></div></div>
             </div>
-            <div id="admin-expenses-tab" class="tab-content">
-                <div id="admin-active-period-container" class="hidden">
-                    <div class="period-summary">
-                        <h3>Rendición en Curso</h3>
-                        <div class="summary-details">
-                            <p><strong>Patente:</strong> <span id="admin-summary-patente"></span></p>
-                            <p><strong>Viaje:</strong> <span id="admin-summary-trip"></span></p>
-                            <p><strong>Monto Inicial:</strong> $<span id="admin-summary-initial"></span></p>
-                            <p><strong>Total Gastado:</strong> $<span id="admin-summary-spent"></span></p>
-                            <p class="saldo"><strong>Saldo Restante:</strong> $<span id="admin-summary-balance"></span></p>
-                        </div>
-                    </div>
-                    <h4>Gastos Registrados</h4>
-                    <div class="table-container">
-                        <table id="admin-expenses-table">
-                            <thead><tr><th>Fecha</th><th>Categoría</th><th>Notas</th><th>Monto</th></tr></thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div id="admin-no-period-container">
-                    <p>Este conductor no tiene una rendición de gastos activa.</p>
-                </div>
+            <div id="admin-calendar-tab" class="tab-content">
+                <div id="admin-calendar-container"><div class="calendar-legend"><div><span class="day-cell-legend work"></span> Trabajo</div><div><span class="day-cell-legend off"></span> Descanso</div></div><div class="calendar-header"><button id="admin-prev-month-btn" aria-label="Mes anterior">&larr;</button><h4 id="admin-month-title-display" class="month-title"></h4><button id="admin-next-month-btn" aria-label="Mes siguiente">&rarr;</button></div><div class="admin-month-grid-container"></div></div>
             </div>
         </div>
+
+        <div id="edit-driver-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <button id="close-edit-modal-btn" class="close-button">&times;</button>
+                <h2>Editar Conductor</h2>
+                <form id="edit-driver-form">
+                    <input type="hidden" id="edit-username" name="username">
+                    <div class="form-group">
+                        <label for="edit-rut">RUT:</label>
+                        <input type="text" id="edit-rut" name="rut">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-phone">Teléfono:</label>
+                        <input type="text" id="edit-phone" name="phone">
+                    </div>
+                    <button type="submit">Guardar Cambios</button>
+                    <p id="edit-driver-message" class="form-message hidden"></p>
+                </form>
+            </div>
+        </div>
+        
     </section>
 </main>
 {% endblock %}

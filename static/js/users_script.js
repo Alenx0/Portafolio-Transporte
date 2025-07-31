@@ -1,477 +1,516 @@
 /*
- * ---------------------------------------------------
- * SCRIPT PARA LA PÁGINA DE USUARIOS (LOGIN Y DASHBOARD)
- * Versión 7.7 - Con Calendario Reparado
- * ---------------------------------------------------
- */
+ * ---------------------------------------------------
+ * SCRIPT PARA LA PÁGINA DE USUARIOS (LOGIN Y DASHBOARD)
+ * Versión 17.1 - Formateo de Monto Inicial
+ * ---------------------------------------------------
+ */
 document.addEventListener('DOMContentLoaded', function() {
 
-        // ===============================================
-        // 1. ELEMENTOS DEL DOM
-        // ===============================================
-        const loginSection = document.getElementById('login-section');
-        const registerSection = document.getElementById('register-section');
-        const dashboardSection = document.getElementById('dashboard-section');
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const loginMessage = document.getElementById('login-message');
-        const registerMessage = document.getElementById('register-message');
-        const showRegisterLink = document.getElementById('show-register-link');
-        const showLoginLink = document.getElementById('show-login-link');
-        const welcomeUsername = document.getElementById('welcome-username');
-        const logoutButton = document.getElementById('logout-button');
-        
-        // Contenedores del Dashboard
-        const adminPanelContainer = document.getElementById('admin-panel-container');
-        const adminDriverDetailsView = document.getElementById('admin-driver-details-view');
-        const conductorViewElements = document.querySelectorAll('.conductor-view');
-        const allTabs = document.querySelectorAll('.tab-link');
-    
-        // Estado de la aplicación
-        let currentUser = null;
-        let activePeriod = null;
-        let expenses = [];
-    
-        // ===============================================
-        // 2. LÓGICA DE LA API
-        // ===============================================
-        async function apiCall(endpoint, method = 'POST', data = null) {
-            const options = { method, headers: { 'Content-Type': 'application/json' } };
-            if (data) options.body = JSON.stringify(data);
-            const response = await fetch(endpoint, options);
-            if (response.status === 204 || response.headers.get("content-length") === "0") {
-                return { success: true, message: "Operación exitosa" };
-            }
-            const responseData = await response.json();
-            if (!response.ok) {
-                const error = new Error(responseData.message || 'Error del servidor');
-                error.data = responseData;
-                throw error;
-            }
-            return responseData;
-        }
-    
-        // ===============================================
-        // 3. FUNCIONES DE MANEJO DE LA INTERFAZ (UI)
-        // ===============================================
-        function showSection(sectionToShow) {
-            loginSection.classList.add('hidden');
-            registerSection.classList.add('hidden');
-            dashboardSection.classList.add('hidden');
-            if (sectionToShow === 'login') loginSection.classList.remove('hidden');
-            else if (sectionToShow === 'register') registerSection.classList.remove('hidden');
-            else if (sectionToShow === 'dashboard') dashboardSection.classList.remove('hidden');
-        }
-        
-        function showMessage(messageElement, text, isSuccess) {
-            messageElement.textContent = text;
-            messageElement.style.color = isSuccess ? 'green' : 'red';
-            messageElement.classList.remove('hidden');
-            setTimeout(() => messageElement.classList.add('hidden'), 4000);
-        }
-        
-        // ===================================
-        // FUNCIÓN DE CALENDARIO CORREGIDA
-        // ===================================
-        function renderCalendar(schedule, container) {
-            if (!container) return;
-        
-            // Mensaje si no hay turno configurado
-            if (!schedule || schedule.length === 0) {
-                container.innerHTML = '<h3>Calendario de Turnos</h3><p>El conductor aún no ha configurado su turno.</p>';
-                return;
-            }
-        
-            // Limpiar contenedor y agregar leyenda
-            container.innerHTML = `
-                <h3>Calendario de Turnos</h3>
-                <div class="calendar-legend">
-                    <div><span class="day-cell-legend work"></span> Trabajo</div>
-                    <div><span class="day-cell-legend off"></span> Descanso</div>
-                </div>
-            `;
-        
-            const months = {};
-            schedule.forEach(day => {
-                const month = day.date.substring(0, 7);
-                if (!months[month]) months[month] = [];
-                months[month].push(day);
-            });
-        
-            for (const monthKey in months) {
-                const date = new Date(monthKey + '-02T00:00:00'); // Usar T00:00:00 para evitar problemas de zona horaria
-                const monthName = date.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
-        
-                const title = document.createElement('h4');
-                title.className = 'month-title';
-                title.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-                container.appendChild(title);
-        
-                // Crear la cuadrícula del mes
-                const monthGrid = document.createElement('div');
-                monthGrid.className = 'month-grid'; // USAR LA CLASE CORRECTA
-        
-                // --- AÑADIR LOS ENCABEZADOS DE LOS DÍAS ---
-                const weekdays = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-                weekdays.forEach(day => {
-                    const dayHeader = document.createElement('div');
-                    dayHeader.className = 'day-header';
-                    dayHeader.textContent = day;
-                    monthGrid.appendChild(dayHeader);
-                });
-        
-                // --- CALCULAR ESPACIOS EN BLANCO AL INICIO DEL MES ---
-                const firstDayOfMonth = new Date(months[monthKey][0].date + 'T00:00:00');
-                let dayOfWeek = firstDayOfMonth.getDay(); // 0=Domingo, 1=Lunes, ..., 6=Sábado
-                if (dayOfWeek === 0) dayOfWeek = 7; // Convertir Domingo a 7 para que quede al final
-                
-                // Añadir celdas vacías para los días antes de que empiece el mes
-                for (let i = 1; i < dayOfWeek; i++) {
-                    const emptyCell = document.createElement('div');
-                    monthGrid.appendChild(emptyCell);
-                }
-        
-                // Añadir las celdas de los días
-                months[monthKey].forEach(day => {
-                    const dayCell = document.createElement('div');
-                    dayCell.className = `day-cell ${day.status}`;
-                    dayCell.textContent = new Date(day.date + 'T00:00:00').getDate();
-                    monthGrid.appendChild(dayCell);
-                });
-        
-                container.appendChild(monthGrid);
-            }
+    // ===============================================
+    // 1. SELECTORES DE ELEMENTOS DEL DOM
+    // ===============================================
+    const loginSection = document.getElementById('login-section');
+    const registerSection = document.getElementById('register-section');
+    const dashboardSection = document.getElementById('dashboard-section');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const loginMessage = document.getElementById('login-message');
+    const registerMessage = document.getElementById('register-message');
+    const showRegisterLink = document.getElementById('show-register-link');
+    const showLoginLink = document.getElementById('show-login-link');
+    const welcomeUsername = document.getElementById('welcome-username');
+    const logoutButton = document.getElementById('logout-button');
+    const adminPanelContainer = document.getElementById('admin-panel-container');
+    const adminDriverDetailsView = document.getElementById('admin-driver-details-view');
+    const conductorViewElements = document.querySelectorAll('.conductor-view');
+    const allTabs = document.querySelectorAll('.tab-link');
+    const expenseAmountInput = document.getElementById('expense-amount');
+    const initialAmountInput = document.getElementById('initial-amount');
+    const shiftDisplayView = document.getElementById('shift-display-view');
+    const shiftConfigForm = document.getElementById('shift-config-form');
+    const displayShiftType = document.getElementById('display-shift-type');
+    const displayShiftStartDate = document.getElementById('display-shift-start-date');
+    const changeShiftBtn = document.getElementById('change-shift-btn');
+    const editDriverModal = document.getElementById('edit-driver-modal');
+    const editDriverForm = document.getElementById('edit-driver-form');
+    const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
+    const editDriverMessage = document.getElementById('edit-driver-message');
+    const globalSpinner = document.getElementById('global-spinner-overlay');
+
+    // Estado global
+    let currentUser = null;
+    let activePeriod = null;
+    let currentCalendarDate = new Date();
+    let adminCalendarDate = new Date();
+    let userSchedule = [];
+    let adminSchedule = [];
+
+    // ===============================================
+    // FUNCIONES GLOBALES DE UI
+    // ===============================================
+    function showSpinner() {
+        if (globalSpinner) globalSpinner.classList.remove('hidden');
+    }
+
+    function hideSpinner() {
+        if (globalSpinner) globalSpinner.classList.add('hidden');
+    }
+
+    // ===============================================
+    // 2. COMUNICACIÓN CON LA API
+    // ===============================================
+    async function apiCall(endpoint, method = 'POST', data = null) {
+        showSpinner();
+        try {
+            const options = { method, headers: { 'Content-Type': 'application/json' } };
+            if (data) options.body = JSON.stringify(data);
+            const response = await fetch(endpoint, options);
+            if (response.status === 204) return { success: true };
+            const responseData = await response.json();
+            if (!response.ok) throw responseData;
+            return responseData;
+        } catch (error) {
+            console.error(`Error en apiCall a ${endpoint}:`, error);
+            throw error;
+        } finally {
+            hideSpinner();
         }
-    
-        function renderExpenseUI(period, expenseList, container) {
-            const startContainer = container.querySelector('#start-period-container') || container.querySelector('#admin-no-period-container');
-            const activeContainer = container.querySelector('#active-period-container') || container.querySelector('#admin-active-period-container');
-            const tableBody = container.querySelector('tbody');
+    }
+
+    // ===============================================
+    // 3. FUNCIONES DE RENDERIZADO DE UI
+    // ===============================================
+    function showSection(section) {
+        [loginSection, registerSection, dashboardSection].forEach(s => s.classList.add('hidden'));
+        document.getElementById(`${section}-section`)?.classList.remove('hidden');
+    }
+
+    function showMessage(element, message, isSuccess) {
+        if (!element) return;
+        element.textContent = message;
+        element.style.color = isSuccess ? 'green' : 'red';
+        element.classList.remove('hidden');
+        setTimeout(() => element.classList.add('hidden'), 4000);
+    }
+
+    function openEditModal(conductor) {
+        editDriverForm.querySelector('#edit-username').value = conductor.username;
+        editDriverForm.querySelector('#edit-rut').value = conductor.rut || '';
+        editDriverForm.querySelector('#edit-phone').value = conductor.phone || '';
+        editDriverModal.classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        editDriverModal.classList.add('hidden');
+        editDriverForm.reset();
+        editDriverMessage.classList.add('hidden');
+    }
+
+    function renderDriverList(conductores) {
+        if (!adminPanelContainer) return;
+        adminPanelContainer.innerHTML = `<h3>Panel de Administración</h3><h4>Conductores Registrados</h4>` + 
+            ((!conductores || conductores.length === 0) 
+            ? '<p>No hay conductores registrados.</p>' 
+            : `<ul class="driver-list">${conductores.map(c => {
+                const conductorData = JSON.stringify(c);
+                return `<li class="driver-item" data-conductor='${conductorData}'>
+                    <span>${c.username}</span>
+                    <div class="actions">
+                        <button class="view-btn action-btn">Ver</button>
+                        <button class="edit-btn action-btn">Editar</button>
+                    </div>
+                </li>`;
+            }).join('')}</ul>`);
+    }
+
+    function renderCalendar(schedule, displayDate, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const monthTitleDisplay = container.querySelector('.month-title');
+        const monthGridContainer = container.querySelector('.month-grid-container, .admin-month-grid-container');
+        const legend = container.querySelector('.calendar-legend');
+        if (!monthTitleDisplay || !monthGridContainer) return;
+
+        if (!schedule || schedule.length === 0) {
+            monthGridContainer.innerHTML = '<p>No hay un turno configurado.</p>';
+            monthTitleDisplay.textContent = 'Calendario de Turnos';
+            if (legend) legend.style.display = 'none';
+            return;
+        }
         
-            if (period) {
-                if(startContainer) startContainer.classList.add('hidden');
-                if(activeContainer) activeContainer.classList.remove('hidden');
-                
+        if (legend) legend.style.display = 'flex';
+        const year = displayDate.getFullYear();
+        const month = displayDate.getMonth();
+        const monthName = displayDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+        monthTitleDisplay.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+        monthGridContainer.innerHTML = '';
+        const monthGrid = document.createElement('div');
+        monthGrid.className = 'month-grid';
+        ['L', 'M', 'M', 'J', 'V', 'S', 'D'].forEach(day => {
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'day-header';
+            dayHeader.textContent = day;
+            monthGrid.appendChild(dayHeader);
+        });
+        const firstDayOfMonth = new Date(year, month, 1);
+        let dayOfWeek = firstDayOfMonth.getDay();
+        if (dayOfWeek === 0) dayOfWeek = 7;
+        for (let i = 1; i < dayOfWeek; i++) {
+            monthGrid.appendChild(document.createElement('div'));
+        }
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let day = 1; day <= daysInMonth; day++) {
+            const isoDate = new Date(Date.UTC(year, month, day)).toISOString().split('T')[0];
+            const scheduleDay = schedule.find(d => d.date === isoDate);
+            const status = scheduleDay ? scheduleDay.status : 'off';
+            const dayCell = document.createElement('div');
+            dayCell.className = `day-cell ${status}`;
+            dayCell.textContent = day;
+            monthGrid.appendChild(dayCell);
+        }
+        monthGridContainer.appendChild(monthGrid);
+    }
+
+    function renderExpenseUI(period, expenses) {
+        const startContainer = document.getElementById('start-period-container');
+        const activeContainer = document.getElementById('active-period-container');
+        const tableBody = document.getElementById('expenses-table')?.querySelector('tbody');
+        activePeriod = (period && period.status === 'activo') ? period : null;
+        startContainer.classList.toggle('hidden', !!activePeriod);
+        activeContainer.classList.toggle('hidden', !activePeriod);
+        if (!activePeriod) return;
+        const format = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n);
+        document.getElementById('summary-patente').textContent = activePeriod.patente;
+        document.getElementById('summary-trip').textContent = `${activePeriod.trip_origin} - ${activePeriod.trip_destination}`;
+        document.getElementById('summary-initial').textContent = format(activePeriod.initial_amount);
+        const totalSpent = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+        const balance = parseFloat(activePeriod.initial_amount) - totalSpent;
+        document.getElementById('summary-spent').textContent = format(totalSpent);
+        document.getElementById('summary-balance').textContent = format(balance);
+        if (tableBody) {
+            tableBody.innerHTML = '';
+            expenses.forEach(exp => {
+                const row = tableBody.insertRow();
+                row.innerHTML = `<td>${exp.date}</td><td>${exp.category}</td><td>${exp.notes || ''}</td><td>${format(exp.amount)}</td><td><button class="delete-btn" data-id="${exp.id}" title="Eliminar este gasto"><i class="fas fa-trash-alt"></i></button></td>`;
+            });
+        }
+    }
+
+    function renderHistoryList(historyData, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = (!historyData || historyData.length === 0) 
+            ? '<p>No hay viajes cerrados para mostrar.</p>' 
+            : historyData.map((period, index) => {
                 const format = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n);
-                
-                const summaryPatente = container.querySelector('#summary-patente') || container.querySelector('#admin-summary-patente');
-                const summaryTrip = container.querySelector('#summary-trip') || container.querySelector('#admin-summary-trip');
-                const summaryInitial = container.querySelector('#summary-initial') || container.querySelector('#admin-summary-initial');
-                const summarySpent = container.querySelector('#summary-spent') || container.querySelector('#admin-summary-spent');
-                const summaryBalance = container.querySelector('#summary-balance') || container.querySelector('#admin-summary-balance');
-        
-                if(summaryPatente) summaryPatente.textContent = period.patente;
-                if(summaryTrip) summaryTrip.textContent = `${period.trip_origin} - ${period.trip_destination}`;
-                if(summaryInitial) summaryInitial.textContent = format(period.initial_amount);
-        
-                const totalSpent = expenseList.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+                const totalSpent = period.expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
                 const balance = parseFloat(period.initial_amount) - totalSpent;
-        
-                if(summarySpent) summarySpent.textContent = format(totalSpent);
-                if(summaryBalance) summaryBalance.textContent = format(balance);
-                
-                if(tableBody) {
-                    tableBody.innerHTML = '';
-                    expenseList.forEach(exp => {
-                        const row = tableBody.insertRow();
-                        const isConductorView = container.id === 'expenses-tab';
-                        
-                        row.innerHTML = `
-                            <td>${exp.date}</td>
-                            <td>${exp.category}</td>
-                            <td>${exp.notes || ''}</td>
-                            <td>${format(exp.amount)}</td>
-                            ${isConductorView ? `<td><button class="delete-btn" data-id="${exp.id}" title="Eliminar este gasto"><i class="fas fa-trash-alt"></i></button></td>` : '<td>-</td>'}
-                        `;
-                    });
-                }
-            } else {
-                if(startContainer) startContainer.classList.remove('hidden');
-                if(activeContainer) activeContainer.classList.add('hidden');
+                const detailsId = `${containerId}-details-${index}`;
+                const expensesTableRows = period.expenses.map(exp => `<tr><td>${exp.date}</td><td>${exp.category}</td><td>${exp.notes || ''}</td><td>${format(exp.amount)}</td></tr>`).join('');
+                const detailsTable = `<div id="${detailsId}" class="history-details"><table class="table-container"><thead><tr><th>Fecha</th><th>Categoría</th><th>Notas</th><th>Monto</th></tr></thead><tbody>${expensesTableRows}</tbody></table></div>`;
+                return `<div class="history-item"><div class="history-summary" data-target="${detailsId}"><strong>Fecha:</strong> ${period.start_date} | <strong>Viaje:</strong> ${period.trip_origin} a ${period.trip_destination} | <strong>Saldo Final:</strong> <span class="saldo">${format(balance)}</span></div>${detailsTable}</div>`;
+            }).join('');
+    }
+    
+    function renderAdminExpenseDetails(activePeriodData, historyData) {
+        const noPeriodContainer = document.getElementById('admin-no-period-container');
+        const activeContainer = document.getElementById('admin-active-period-container');
+        noPeriodContainer.classList.toggle('hidden', !!activePeriodData);
+        activeContainer.classList.toggle('hidden', !activePeriodData);
+        if (activePeriodData) {
+            const format = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n);
+            const expenses = activePeriodData.expenses || [];
+            document.getElementById('admin-summary-patente').textContent = activePeriodData.patente;
+            document.getElementById('admin-summary-trip').textContent = `${activePeriodData.trip_origin} - ${activePeriodData.trip_destination}`;
+            document.getElementById('admin-summary-initial').textContent = format(activePeriodData.initial_amount);
+            const totalSpent = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+            const balance = parseFloat(activePeriodData.initial_amount) - totalSpent;
+            document.getElementById('admin-summary-spent').textContent = format(totalSpent);
+            document.getElementById('admin-summary-balance').textContent = format(balance);
+            const tableBody = document.getElementById('admin-expenses-table')?.querySelector('tbody');
+            if (tableBody) {
+                tableBody.innerHTML = expenses.map(exp => `<tr><td>${exp.date}</td><td>${exp.category}</td><td>${exp.notes || ''}</td><td>${format(exp.amount)}</td></tr>`).join('');
             }
         }
-        
-        function renderDriverList(conductores) {
-            let listHTML = '<h3>Panel de Administración</h3><h4>Conductores Registrados</h4>';
-            if (conductores.length === 0) {
-                listHTML += '<p>No hay conductores registrados actualmente.</p>';
-            } else {
-                listHTML += '<ul class="driver-list">';
-                conductores.forEach(conductor => {
-                    listHTML += `<li class="driver-item" data-username="${conductor.username}"><span>${conductor.username}</span><button class="view-btn">Ver Detalles</button></li>`;
-                });
-                listHTML += '</ul>';
-            }
-            adminPanelContainer.innerHTML = listHTML;
-        }
+        renderHistoryList(historyData, 'admin-history-list-container');
+    }
     
-        function setupDashboardForRole(user) {
-            if (user.role === 'admin') {
-                conductorViewElements.forEach(el => el.classList.add('hidden'));
-                adminPanelContainer.classList.remove('hidden');
-                adminDriverDetailsView.classList.add('hidden');
-            } else {
-                conductorViewElements.forEach(el => el.classList.remove('hidden'));
-                adminPanelContainer.classList.add('hidden');
-                adminDriverDetailsView.classList.add('hidden');
-                
-                allTabs.forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                const firstTab = document.querySelector('.tab-link[data-tab="calendar-tab"]');
-                const firstTabContent = document.getElementById('calendar-tab');
-                if (firstTab) firstTab.classList.add('active');
-                if (firstTabContent) firstTabContent.classList.add('active');
-            }
-        }
-    
-        // ===============================================
-        // 4. LÓGICA PRINCIPAL Y EVENT LISTENERS
-        // ===============================================
-        
-        async function loadDashboardData() {
-            welcomeUsername.textContent = currentUser.username;
-            setupDashboardForRole(currentUser);
-    
-            if (currentUser.role === 'admin') {
-                try {
-                    const data = await apiCall('/api/admin/conductores', 'GET');
-                    if (data.success) renderDriverList(data.conductores);
-                } catch (error) { console.error("Error al cargar lista de conductores:", error); }
-            } else {
-                const shiftTypeSelect = document.getElementById('shift-type-select');
-                const shiftStartDateInput = document.getElementById('shift-start-date-input');
-                if(currentUser.shift_type) shiftTypeSelect.value = currentUser.shift_type;
-                if(currentUser.shift_start_date) shiftStartDateInput.value = currentUser.shift_start_date;
-                try {
-                    const scheduleData = await apiCall(`/api/user/shift?username=${currentUser.username}`, 'GET');
-                    if (scheduleData.success) renderCalendar(scheduleData.schedule, document.getElementById('calendar-container'));
-                } catch (error) { renderCalendar([], document.getElementById('calendar-container')); }
-                try {
-                    const expenseData = await apiCall(`/api/expense_data?username=${currentUser.username}`, 'GET');
-                    if (expenseData.success) {
-                        activePeriod = expenseData.active_period;
-                        expenses = expenseData.expenses;
-                        renderExpenseUI(activePeriod, expenses, document.getElementById('expenses-tab'));
-                    }
-                } catch (error) { renderExpenseUI(null, [], document.getElementById('expenses-tab')); }
-            }
-        }
-    
-        const storedUser = localStorage.getItem('loggedInUser');
-        if (storedUser) {
-            currentUser = JSON.parse(storedUser);
-            showSection('dashboard');
-            loadDashboardData();
-        } else {
-            showSection('login');
-        }
-    
-        showRegisterLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            showSection('register');
-        });
-    
-        showLoginLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            showSection('login');
-        });
-        
-        allTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const parentTabs = tab.closest('.tabs');
-                parentTabs.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                const targetId = tab.dataset.tab;
-                const viewContainer = tab.closest('section, #admin-driver-details-view');
-                viewContainer.querySelectorAll('.tab-content').forEach(content => {
-                    content.id === targetId ? content.classList.add('active') : content.classList.remove('active');
-                });
-            });
-        });
-        
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
-            const submitButton = loginForm.querySelector('button');
-            submitButton.disabled = true;
-            try {
-                const data = await apiCall('/api/login', 'POST', { username, password });
-                currentUser = data.user;
-                localStorage.setItem('loggedInUser', JSON.stringify(currentUser));
-                showSection('dashboard');
-                await loadDashboardData();
-            } catch (error) {
-                showMessage(loginMessage, error.data?.message || 'Error al conectar.', false);
-            } finally {
-                submitButton.disabled = false;
-            }
-        });
-    
-        const shiftConfigForm = document.getElementById('shift-config-form');
-        if (shiftConfigForm) {
-            shiftConfigForm.addEventListener('submit', async (e) => { 
-                e.preventDefault(); 
-                const newShiftType = document.getElementById('shift-type-select').value; 
-                const newStartDate = document.getElementById('shift-start-date-input').value; 
-                try { 
-                    const data = await apiCall('/api/user/shift', 'POST', { username: currentUser.username, shift_type: newShiftType, shift_start_date: newStartDate }); 
-                    showMessage(document.getElementById('shift-message'), data.message, true); 
-                    currentUser.shift_type = newShiftType; 
-                    currentUser.shift_start_date = newStartDate; 
-                    localStorage.setItem('loggedInUser', JSON.stringify(currentUser)); 
-                    const scheduleData = await apiCall(`/api/user/shift?username=${currentUser.username}`, 'GET'); 
-                    if (scheduleData.success) renderCalendar(scheduleData.schedule, document.getElementById('calendar-container')); 
-                } catch (error) { 
-                    showMessage(document.getElementById('shift-message'), error.data?.message || 'Error al guardar.', false); 
-                } 
-            });
-        }
-        
-        const startPeriodForm = document.getElementById('start-period-form');
-        if (startPeriodForm) {
-            startPeriodForm.addEventListener('submit', async (e) => { 
-                e.preventDefault(); 
-                const periodData = { 
-                    username: currentUser.username, 
-                    patente: document.getElementById('patente').value, 
-                    rut: document.getElementById('rut').value, 
-                    trip_origin: document.getElementById('trip-origin').value, 
-                    trip_destination: document.getElementById('trip-destination').value, 
-                    initial_amount: document.getElementById('initial-amount').value 
-                }; 
-                try { 
-                    const data = await apiCall('/api/work_periods', 'POST', periodData); 
-                    activePeriod = data.period; 
-                    expenses = []; 
-                    renderExpenseUI(activePeriod, expenses, document.getElementById('expenses-tab')); 
-                    startPeriodForm.reset(); 
-                } catch (error) { 
-                    console.error("Error al iniciar período:", error); 
-                    alert("Hubo un error al iniciar el período de trabajo."); 
-                } 
-            });
-        }
-    
-        const expenseAmountInput = document.getElementById('expense-amount');
-        if (expenseAmountInput) {
-            expenseAmountInput.addEventListener('input', (e) => {
-                let value = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
-                
-                if (value) {
-                    e.target.value = new Intl.NumberFormat('es-CL').format(value);
-                } else {
-                    e.target.value = '';
-                }
-            });
+    function renderShiftConfigUI() {
+        if (!currentUser || !shiftDisplayView || !shiftConfigForm) return;
+        const hasShift = currentUser.shift_type && currentUser.shift_start_date;
+        shiftDisplayView.classList.toggle('hidden', !hasShift);
+        shiftConfigForm.classList.toggle('hidden', hasShift);
+        if (hasShift) {
+            displayShiftType.textContent = currentUser.shift_type;
+            displayShiftStartDate.textContent = currentUser.shift_start_date;
         }
-        
-        const addExpenseForm = document.getElementById('add-expense-form');
-        if (addExpenseForm) {
-            addExpenseForm.addEventListener('submit', async (e) => { 
-                e.preventDefault();
+    }
+
+    function setupDashboardForRole(user) {
+        const isAdmin = user.role === 'admin';
+        conductorViewElements.forEach(el => el.classList.toggle('hidden', isAdmin));
+        adminPanelContainer.classList.toggle('hidden', !isAdmin);
+        adminDriverDetailsView.classList.add('hidden');
+        if (!isAdmin) {
+            const firstTab = document.querySelector('.conductor-view .tab-link[data-tab="calendar-tab"]');
+            if (firstTab) firstTab.click();
+        }
+    }
+
+    async function refreshExpenseAndHistoryData() {
+        const [expenseData, historyData] = await Promise.all([
+            apiCall(`/api/expense_data?username=${currentUser.username}`, 'GET').catch(() => ({})),
+            apiCall(`/api/work_periods/history?username=${currentUser.username}`, 'GET').catch(() => ({}))
+        ]);
+        if (expenseData.success) renderExpenseUI(expenseData.active_period, expenseData.expenses);
+        if (historyData.success) renderHistoryList(historyData.history, 'history-list-container');
+    }
+
+    async function loadDashboardData() {
+        welcomeUsername.textContent = currentUser.username;
+        setupDashboardForRole(currentUser);
+        if (currentUser.role === 'admin') {
+            const data = await apiCall('/api/admin/conductores', 'GET');
+            if (data.success) renderDriverList(data.conductores);
+        } else {
+            renderShiftConfigUI();
+            const scheduleData = await apiCall(`/api/user/shift?username=${currentUser.username}`, 'GET').catch(() => ({}));
+            userSchedule = scheduleData.success ? scheduleData.schedule : [];
+            renderCalendar(userSchedule, currentCalendarDate, 'calendar-container');
+            await refreshExpenseAndHistoryData();
+        }
+    }
     
-                const amountInput = document.getElementById('expense-amount');
-                const unformattedAmount = amountInput.value.replace(/\./g, '');
-    
-                const expenseData = { 
-                    period_id: activePeriod.id, 
-                    category: document.getElementById('expense-category').value, 
-                    amount: unformattedAmount, 
-                    notes: document.getElementById('expense-notes').value 
-                }; 
-                try { 
-                    const data = await apiCall('/api/expenses', 'POST', expenseData); 
-                    expenses.push(data.expense); 
-                    renderExpenseUI(activePeriod, expenses, document.getElementById('expenses-tab')); 
-                    addExpenseForm.reset(); 
-                } catch (error) { 
-                    console.error("Error al añadir gasto:", error); 
-                    alert("Hubo un error al añadir el gasto."); 
-                } 
-            });
-        }
-        
-        dashboardSection.addEventListener('click', async (e) => {
-            const deleteButton = e.target.closest('.delete-btn');
-            if (deleteButton) {
-                const expenseId = deleteButton.dataset.id;
-                if (confirm('¿Estás seguro de que quieres eliminar este gasto?')) {
-                    try {
-                        await apiCall(`/api/expenses/${expenseId}`, 'DELETE');
-                        const container = deleteButton.closest('.tab-content') || document.getElementById('expenses-tab');
-                        expenses = expenses.filter(exp => exp.id != expenseId);
-                        renderExpenseUI(activePeriod, expenses, container);
-                    } catch (error) {
-                        console.error('Error al eliminar el gasto:', error);
-                        alert('No se pudo eliminar el gasto.');
-                    }
-                }
-            }
-        });
-        
-        logoutButton.addEventListener('click', () => { 
-            localStorage.removeItem('loggedInUser'); 
-            currentUser = null; 
-            activePeriod = null; 
-            expenses = []; 
-            showSection('login'); 
-            loginForm.reset(); 
-            registerForm.reset(); 
-        });
-        
-        registerForm.addEventListener('submit', async (e) => { 
-            e.preventDefault(); 
-            const username = document.getElementById('register-username').value; 
-            const password = document.getElementById('register-password').value; 
-            const submitButton = registerForm.querySelector('button'); 
-            submitButton.disabled = true; 
-            try { 
-                const data = await apiCall('/api/register', 'POST', { username, password }); 
-                showMessage(registerMessage, data.message, true); 
-                if (data.success) setTimeout(() => showSection('login'), 2000); 
-            } catch (error) { 
-                showMessage(registerMessage, error.data?.message || 'Error al registrar.', false); 
-            } finally { 
-                submitButton.disabled = false; 
-            } 
-        });
-    
-        adminPanelContainer.addEventListener('click', async (e) => {
-            const viewButton = e.target.closest('.view-btn');
-            if (viewButton) {
-                const driverUsername = viewButton.closest('.driver-item').dataset.username;
-                try {
-                    const data = await apiCall(`/api/admin/conductor_details/${driverUsername}`, 'GET');
-                    if (data.success) {
-                        adminPanelContainer.classList.add('hidden');
-                        adminDriverDetailsView.classList.remove('hidden');
-                        document.getElementById('details-driver-name').textContent = `Detalles de: ${data.conductor.username}`;
-                        
-                        renderCalendar(data.schedule, document.getElementById('admin-calendar-container'));
-                        renderExpenseUI(data.active_period, data.expenses, document.getElementById('admin-expenses-tab'));
-                    }
-                } catch (error) {
-                    console.error("Error al cargar detalles del conductor:", error);
-                    alert("No se pudieron cargar los detalles del conductor.");
-                }
-            }
-        });
-    
-        document.getElementById('back-to-list-btn').addEventListener('click', () => {
-            adminPanelContainer.classList.remove('hidden');
-            adminDriverDetailsView.classList.add('hidden');
-        });
-    
-        showRegisterLink.addEventListener('click', (e) => {
+    // ===============================================
+    // 4. LÓGICA PRINCIPAL Y EVENT LISTENERS
+    // ===============================================
+    function init() {
+        const storedUser = localStorage.getItem('loggedInUser');
+        if (storedUser) {
+            currentUser = JSON.parse(storedUser);
+            showSection('dashboard');
+            loadDashboardData();
+        } else {
+            showSection('login');
+        }
+
+        loginForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            showSection('register');
+            try {
+                const data = await apiCall('/api/login', 'POST', { username: loginForm.username.value, password: loginForm.password.value });
+                currentUser = data.user;
+                localStorage.setItem('loggedInUser', JSON.stringify(currentUser));
+                showSection('dashboard');
+                await loadDashboardData();
+            } catch (error) {
+                showMessage(loginMessage, error.message || 'Error al conectar.', false);
+            }
         });
-    
-        showLoginLink.addEventListener('click', (e) => {
+        
+        registerForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
+            try {
+                const data = await apiCall('/api/register', 'POST', { username: registerForm.username.value, password: registerForm.password.value });
+                showMessage(registerMessage, data.message, true);
+                setTimeout(() => showSection('login'), 2000);
+            } catch (error) {
+                showMessage(registerMessage, error.message || 'Error al registrar.', false);
+            }
+        });
+
+        logoutButton?.addEventListener('click', () => {
+            localStorage.removeItem('loggedInUser');
+            currentUser = null;
+            activePeriod = null;
+            loginForm.reset();
+            registerForm.reset();
             showSection('login');
         });
-    });
+
+        showRegisterLink?.addEventListener('click', (e) => { e.preventDefault(); showSection('register'); });
+        showLoginLink?.addEventListener('click', (e) => { e.preventDefault(); showSection('login'); });
+
+        allTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetId = tab.dataset.tab;
+                if (!targetId) return;
+                const parent = tab.closest('.tabs').parentElement;
+                parent.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+                parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(targetId)?.classList.add('active');
+            });
+        });
+        
+        document.addEventListener('click', async (e) => {
+            const target = e.target;
+            const historySummary = target.closest('.history-summary');
+            if (historySummary) {
+                const detailsDiv = document.getElementById(historySummary.dataset.target);
+                if (detailsDiv) {
+                    detailsDiv.style.display = (detailsDiv.style.display === 'block') ? 'none' : 'block';
+                }
+                return;
+            }
+
+            if (adminPanelContainer && !adminPanelContainer.classList.contains('hidden')) {
+                const viewButton = target.closest('.view-btn');
+                if (viewButton) {
+                    const driverItem = viewButton.closest('.driver-item');
+                    const conductorData = JSON.parse(driverItem.dataset.conductor);
+                    try {
+                        const data = await apiCall(`/api/admin/conductor_details/${conductorData.username}`, 'GET');
+                        if (data.success) {
+                            adminPanelContainer.classList.add('hidden');
+                            adminDriverDetailsView.classList.remove('hidden');
+                            document.getElementById('details-driver-name').innerHTML = `Detalles de: ${data.conductor.username}<div style="font-size: 0.8em; color: #555; margin-top: 5px;">RUT: ${data.conductor.rut || 'No asignado'} | Teléfono: ${data.conductor.phone || 'No asignado'}</div>`;
+                            adminSchedule = data.schedule;
+                            renderAdminExpenseDetails(data.active_period, data.history);
+                            renderCalendar(adminSchedule, adminCalendarDate, 'admin-calendar-container');
+                            const firstAdminTab = adminDriverDetailsView.querySelector('.tab-link');
+                            if (firstAdminTab) firstAdminTab.click();
+                        }
+                    } catch (error) {
+                        alert('No se pudieron cargar los detalles del conductor.');
+                    }
+                }
+                const editButton = target.closest('.edit-btn');
+                if (editButton) {
+                    const driverItem = editButton.closest('.driver-item');
+                    const conductorData = JSON.parse(driverItem.dataset.conductor);
+                    openEditModal(conductorData);
+                }
+            }
+
+            if (!dashboardSection.classList.contains('hidden')) {
+                const deleteButton = target.closest('.delete-btn');
+                if (deleteButton && activePeriod) {
+                    if (confirm('¿Estás seguro de que quieres eliminar este gasto?')) {
+                        await apiCall(`/api/expenses/${deleteButton.dataset.id}`, 'DELETE');
+                        await refreshExpenseAndHistoryData();
+                    }
+                }
+                const closeButton = target.closest('#close-period-btn');
+                if (closeButton && activePeriod) {
+                    if (confirm('¿Estás seguro de que quieres cerrar este viaje? No podrás añadir más gastos.')) {
+                        await apiCall(`/api/work_periods/${activePeriod.id}/close`, 'POST');
+                        alert('Viaje cerrado con éxito.');
+                        await refreshExpenseAndHistoryData();
+                    }
+                }
+            }
+        });
+        
+        editDriverForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = editDriverForm.querySelector('#edit-username').value;
+            const rut = editDriverForm.querySelector('#edit-rut').value;
+            const phone = editDriverForm.querySelector('#edit-phone').value;
+            try {
+                const data = await apiCall(`/api/admin/conductor/${username}`, 'PUT', { rut, phone });
+                if (data.success) {
+                    showMessage(editDriverMessage, data.message, true);
+                    await loadDashboardData();
+                    setTimeout(closeEditModal, 1500);
+                }
+            } catch (error) {
+                showMessage(editDriverMessage, error.message || 'Error al guardar.', false);
+            }
+        });
+
+        closeEditModalBtn?.addEventListener('click', closeEditModal);
+        editDriverModal?.addEventListener('click', (e) => {
+            if (e.target === editDriverModal) closeEditModal();
+        });
+        
+        document.getElementById('back-to-list-btn')?.addEventListener('click', () => {
+            adminPanelContainer.classList.remove('hidden');
+            adminDriverDetailsView.classList.add('hidden');
+        });
+        
+        document.getElementById('start-period-form')?.addEventListener('submit', async(e) => {
+            e.preventDefault();
+            const form = e.target;
+            const unformattedAmount = form['initial-amount'].value.replace(/\./g, '');
+            const periodData = { username: currentUser.username, patente: form.patente.value, rut: form.rut.value, trip_origin: form['trip-origin'].value, trip_destination: form['trip-destination'].value, initial_amount: unformattedAmount };
+            try {
+                await apiCall('/api/work_periods', 'POST', periodData);
+                await refreshExpenseAndHistoryData();
+                form.reset();
+            } catch(error) {
+                alert(error.message || 'Error al iniciar el período.');
+            }
+        });
+
+        document.getElementById('add-expense-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!activePeriod) return alert("No hay un período activo para añadir gastos.");
+            const form = e.target;
+            const unformattedAmount = form['expense-amount'].value.replace(/\./g, '');
+            const expenseData = { period_id: activePeriod.id, category: form['expense-category'].value, amount: unformattedAmount, notes: form['expense-notes'].value };
+            try {
+                await apiCall('/api/expenses', 'POST', expenseData);
+                await refreshExpenseAndHistoryData();
+                form.reset();
+            } catch(error) {
+                alert(error.message || 'Error al añadir el gasto.');
+            }
+        });
+        
+        expenseAmountInput?.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+            e.target.value = value ? new Intl.NumberFormat('es-CL').format(value) : '';
+        });
+
+        initialAmountInput?.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+            e.target.value = value ? new Intl.NumberFormat('es-CL').format(value) : '';
+        });
+        
+        changeShiftBtn?.addEventListener('click', () => {
+            shiftDisplayView.classList.add('hidden');
+            shiftConfigForm.classList.remove('hidden');
+        });
+
+        shiftConfigForm?.addEventListener('submit', async(e) => {
+            e.preventDefault();
+            const form = e.target;
+            const shiftData = { 
+                username: currentUser.username, 
+                shift_type: form.querySelector('#shift-type-select').value, 
+                shift_start_date: form.querySelector('#shift-start-date-input').value 
+            };
+            try {
+                const data = await apiCall('/api/user/shift', 'POST', shiftData);
+                currentUser.shift_type = shiftData.shift_type;
+                currentUser.shift_start_date = shiftData.shift_start_date;
+                localStorage.setItem('loggedInUser', JSON.stringify(currentUser));
+                showMessage(document.getElementById('shift-message'), data.message, true);
+                await loadDashboardData();
+            } catch (error) {
+                showMessage(document.getElementById('shift-message'), error.message || 'Error al guardar el turno.', false);
+            }
+        });
+
+        document.getElementById('prev-month-btn')?.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderCalendar(userSchedule, currentCalendarDate, 'calendar-container');
+        });
+
+        document.getElementById('next-month-btn')?.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderCalendar(userSchedule, currentCalendarDate, 'calendar-container');
+        });
+
+        document.getElementById('admin-prev-month-btn')?.addEventListener('click', () => {
+            adminCalendarDate.setMonth(adminCalendarDate.getMonth() - 1);
+            renderCalendar(adminSchedule, adminCalendarDate, 'admin-calendar-container');
+        });
+        document.getElementById('admin-next-month-btn')?.addEventListener('click', () => {
+            adminCalendarDate.setMonth(adminCalendarDate.getMonth() + 1);
+            renderCalendar(adminSchedule, adminCalendarDate, 'admin-calendar-container');
+        });
+    }
+
+    init();
+});

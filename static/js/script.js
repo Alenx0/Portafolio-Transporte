@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // ===============================================
-    // 0. CONFIGURACIÓN GLOBAL
+    // 0. CONFIGURACIÓN Y SELECTORES GLOBALES
     // ===============================================
     const config = {
         emailJS: {
@@ -13,6 +13,23 @@ document.addEventListener('DOMContentLoaded', function() {
             autoplayDelay: 5000
         }
     };
+
+    const globalSpinner = document.getElementById('global-spinner-overlay');
+
+    // ===============================================
+    // ¡NUEVO! FUNCIONES PARA CONTROLAR EL SPINNER
+    // ===============================================
+    function showSpinner() {
+        if (globalSpinner) {
+            globalSpinner.classList.remove('hidden');
+        }
+    }
+
+    function hideSpinner() {
+        if (globalSpinner) {
+            globalSpinner.classList.add('hidden');
+        }
+    }
 
     // ===============================================
     // 1. LÓGICA DEL MENÚ DE NAVEGACIÓN (HAMBURGUESA)
@@ -50,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===============================================
     const carouselContainer = document.querySelector('.carousel-container');
     if (carouselContainer) {
-        // ... (La lógica del carrusel sigue exactamente igual)
         const carouselSlides = document.querySelectorAll('.carousel-slide');
         const prevButton = document.querySelector('.carousel-navigation .prev');
         const nextButton = document.querySelector('.carousel-navigation .next');
@@ -100,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===============================================
-    // 4. LÓGICA DEL FORMULARIO DE CONTACTO (EMAILJS)
+    // 4. LÓGICA DEL FORMULARIO DE CONTACTO (MODIFICADO)
     // ===============================================
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
@@ -109,10 +125,14 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             const submitButton = document.getElementById('submit-button');
             const formStatus = document.getElementById('form-status');
+            
             submitButton.disabled = true;
             formStatus.textContent = 'Enviando...';
             formStatus.style.color = '#1e3a8a';
             formStatus.classList.remove('hidden');
+            
+            showSpinner(); // <-- MOSTRAMOS EL SPINNER
+
             emailjs.sendForm(config.emailJS.serviceID, config.emailJS.templateID, this)
                 .then(() => {
                     formStatus.textContent = '¡Mensaje enviado con éxito!';
@@ -125,13 +145,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .finally(() => {
                     submitButton.disabled = false;
+                    hideSpinner(); // <-- OCULTAMOS EL SPINNER (al final, funcione o no)
                     setTimeout(() => formStatus.classList.add('hidden'), 4000);
                 });
         });
     }
 
     // ===============================================
-    // 5. LÓGICA DEL MODAL DE COTIZACIÓN (NUEVO)
+    // 5. LÓGICA DEL MODAL DE COTIZACIÓN
     // ===============================================
     const modalOverlay = document.getElementById('quote-modal-overlay');
     const openModalButtons = document.querySelectorAll('.open-quote-modal');
@@ -149,20 +170,16 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.classList.remove('modal-open');
         }
 
-        // Abrir el modal con cualquiera de los botones/enlaces
         openModalButtons.forEach(button => {
             button.addEventListener('click', function(event) {
-                event.preventDefault(); // Evita que el enlace recargue la página
+                event.preventDefault();
                 openModal();
             });
         });
 
-        // Cerrar el modal con el botón 'X'
         closeModalButton.addEventListener('click', closeModal);
 
-        // Cerrar el modal al hacer clic en el fondo oscuro (overlay)
         modalOverlay.addEventListener('click', function(event) {
-            // Si el clic fue directamente en el overlay y no en sus hijos (el contenido del modal)
             if (event.target === modalOverlay) {
                 closeModal();
             }

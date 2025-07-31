@@ -1,7 +1,7 @@
 /*
  * ---------------------------------------------------
  * TRANSPORTE UNIÓN SALAZAR - ESTILOS CSS PRINCIPALES
- * Versión 4.4 - Ajustes Finales de Posicionamiento
+ * Versión 5.0 - Añadidos Estilos de Spinner Global
  * ---------------------------------------------------
  * Contenido:
  * 0. Panel de Control de Diseño (Variables CSS)
@@ -14,6 +14,7 @@
  * 7. Estilos del Mega-Footer
  * 8. Clases de Utilidad y JavaScript
  * 9. Estilos del Modal de Cotización
+ * 10. ESTILOS DE COMPONENTES GLOBALES (¡NUEVO!)
  * ---------------------------------------------------
  */
 
@@ -74,7 +75,6 @@
   main {
       padding: 0;
       padding-bottom: 50px;
-      /* CAMBIO 1: Reducimos el padding para acercar el carrusel al header */
       padding-top: calc(var(--header-height-mobile) - 10px);
   }
   @media (min-width: 992px) {
@@ -397,7 +397,7 @@
   }
   
   /* ============================================== */
-  /* 5. ESTILOS DEL CARRUSEL DE IMÁGENES (INMERSIVO) */
+  /* 5. ESTILOS DEL CARRUSEL DE IMÁGENES            */
   /* ============================================== */
   #hero {
       padding: 0;
@@ -498,7 +498,7 @@
   }
   
   /* ============================================== */
-  /* 7. ESTILOS DEL MEGA-FOOTER                     */
+  /* 7. ESTILOS DEL FOOTER                          */
   /* ============================================== */
   #site-footer {
       background-color: var(--color-primary);
@@ -737,4 +737,3 @@
       font-weight: bold;
       text-align: center;
   }
-  

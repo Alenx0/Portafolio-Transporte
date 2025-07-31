@@ -1,7 +1,7 @@
 /*
  * ---------------------------------------------------
  * ESTILOS PARA LA PÁGINA DE USUARIOS (LOGIN Y DASHBOARD)
- * Versión 8.0 - Final y Robusta
+ * Versión 9.0 - Con Estilos de Historial
  * ---------------------------------------------------
  */
 
@@ -13,9 +13,7 @@
     margin: 0 auto;
     padding: 0 15px;
 }
-
-#login-section,
-#register-section {
+#login-section, #register-section {
     max-width: 400px;
     margin: 50px auto;
     padding: 30px;
@@ -24,32 +22,24 @@
     background-color: var(--color-surface);
     text-align: center;
 }
-
-#login-section h2,
-#register-section h2 {
+#login-section h2, #register-section h2 {
     color: var(--color-primary);
     margin-bottom: 25px;
     border-bottom: none;
     padding-bottom: 0;
     font-size: 2em;
 }
-
-#login-form .form-group,
-#register-form .form-group {
+#login-form .form-group, #register-form .form-group {
     margin-bottom: 20px;
     text-align: left;
 }
-
-#login-form label,
-#register-form label {
+#login-form label, #register-form label {
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
     color: #333;
 }
-
-#login-form input,
-#register-form input {
+#login-form input, #register-form input {
     width: 100%;
     padding: 12px 15px;
     border: 1px solid var(--color-border);
@@ -57,16 +47,12 @@
     font-size: 1.1em;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-
-#login-form input:focus,
-#register-form input:focus {
+#login-form input:focus, #register-form input:focus {
     border-color: var(--color-primary);
     outline: none;
     box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
 }
-
-#login-form button,
-#register-form button {
+#login-form button, #register-form button {
     background-color: var(--color-accent);
     color: var(--color-text-light);
     padding: 12px 25px;
@@ -79,18 +65,14 @@
     width: 100%;
     margin-top: 15px;
 }
-
-#login-form button:hover,
-#register-form button:hover {
+#login-form button:hover, #register-form button:hover {
     background-color: var(--color-accent-hover);
     transform: translateY(-2px);
 }
-
 .toggle-form-text {
     margin-top: 20px;
     font-size: 0.9em;
 }
-
 .form-message {
     margin-top: 15px;
     font-size: 0.95em;
@@ -106,9 +88,9 @@
     background-color: var(--color-surface);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     border-radius: 10px;
+    margin-top: 30px;
     text-align: center;
 }
-
 .dashboard-header {
     display: flex;
     justify-content: space-between;
@@ -117,12 +99,10 @@
     gap: 15px;
     margin-bottom: 20px;
 }
-
 #dashboard-section h2 {
     margin: 0;
     border: none;
 }
-
 #logout-button {
     background-color: #dc3545;
     color: white;
@@ -133,9 +113,26 @@
     font-size: 0.9em;
     transition: background-color 0.3s ease;
 }
-
 #logout-button:hover {
     background-color: #c82333;
+}
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.close-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+.close-btn:hover {
+    background-color: #218838;
 }
 
 /* ============================================== */
@@ -147,7 +144,6 @@
     display: flex;
     gap: 10px;
 }
-
 .tab-link {
     padding: 10px 20px;
     cursor: pointer;
@@ -159,32 +155,24 @@
     color: #666;
     transition: color 0.3s, border-color 0.3s;
 }
-
 .tab-link:hover {
     color: var(--color-primary);
 }
-
 .tab-link.active {
     color: var(--color-primary);
     border-bottom-color: var(--color-primary);
 }
-
-.tab-content.hidden, .tabs.hidden, #admin-panel-container.hidden, #admin-driver-details-view.hidden {
-    display: none;
-}
-
 .tab-content {
     display: none;
 }
-
 .tab-content.active {
     display: block;
 }
 
-
 /* ============================================== */
-/* ESTILOS PARA CONFIGURACIÓN DE TURNOS Y CALENDARIO */
+/* ESTILOS PARA CALENDARIO                        */
 /* ============================================== */
+/* ... (todos los estilos del calendario se mantienen igual) ... */
 .shift-config-container {
     max-width: 600px;
     margin: 30px auto;
@@ -193,6 +181,35 @@
     border-radius: 8px;
     background-color: #f9f9f9;
 }
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.calendar-header button {
+    background-color: var(--color-primary-light);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.calendar-header button:hover {
+    background-color: var(--color-primary);
+}
+
+#month-title-display {
+    margin: 0; /* Quitamos el margen que tenía antes */
+    flex-grow: 1; /* Hacemos que ocupe el espacio del medio */
+}
+
 .shift-config-container h3 { margin-top: 0; margin-bottom: 20px; color: var(--color-text-base); }
 #shift-config-form { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 15px; }
 #shift-config-form .form-group { display: flex; flex-direction: column; text-align: left; }
@@ -200,110 +217,36 @@
 #shift-config-form select, #shift-config-form input { padding: 10px; border-radius: 5px; border: 1px solid var(--color-border); font-size: 1em; }
 #shift-config-form button { padding: 10px 20px; background-color: var(--color-primary); color: var(--color-text-light); border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; }
 #shift-config-form button:hover { background-color: #1e3a8a99; }
-
-#calendar-container, #admin-calendar-container {
-    margin-top: 40px;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
-    text-align: left;
-}
-
-.calendar-legend {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-    font-size: 0.9em;
-    justify-content: center;
-}
-.calendar-legend div {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.day-cell-legend {
-    width: 15px;
-    height: 15px;
-    border-radius: 3px;
-    display: inline-block;
-}
-
-.month-title {
-    background-color: var(--color-primary-light);
-    color: var(--color-text-light);
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    margin: 20px 0 10px;
-}
-
-.month-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-}
-
-.day-header {
-    font-weight: bold;
-    text-align: center;
-    padding-bottom: 5px;
-    color: #555;
-}
-
-.day-cell {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 40px;
-    border-radius: 4px;
-    font-weight: 600;
-    transition: transform 0.2s ease;
-}
-
-.day-cell.work {
-    background-color: #ffcdd2;
-    color: #c62828;
-    border: 1px solid #ef9a9a;
-}
-
-.day-cell.off {
-    background-color: #c8e6c9;
-    color: #2e7d32;
-    border: 1px solid #a5d6a7;
-}
-
+#calendar-container, #admin-calendar-container { margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; text-align: left; }
+.calendar-legend { display: flex; gap: 20px; margin-bottom: 20px; font-size: 0.9em; justify-content: center; }
+.calendar-legend div { display: flex; align-items: center; gap: 8px; }
+.day-cell-legend { width: 15px; height: 15px; border-radius: 3px; display: inline-block; }
+.month-title { background-color: var(--color-primary-light); color: var(--color-text-light); padding: 10px; border-radius: 5px; text-align: center; margin: 20px 0 10px; }
+.month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.day-header { font-weight: bold; text-align: center; padding-bottom: 5px; color: #555; }
+.day-cell { display: flex; justify-content: center; align-items: center; height: 40px; border-radius: 4px; font-weight: 600; transition: transform 0.2s ease; }
+.day-cell.work { background-color: #ffcdd2; color: #c62828; border: 1px solid #ef9a9a; }
+.day-cell.off { background-color: #c8e6c9; color: #2e7d32; border: 1px solid #a5d6a7; }
 .day-cell-legend.work { background-color: #ffcdd2; border: 1px solid #ef9a9a; }
 .day-cell-legend.off { background-color: #c8e6c9; border: 1px solid #a5d6a7; }
-
-.day-cell:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
+.day-cell:hover { transform: scale(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
 /* ============================================== */
 /* ESTILOS PARA RENDICIÓN DE GASTOS               */
 /* ============================================== */
-#start-period-container,
-#active-period-container,
-#admin-active-period-container,
-#admin-no-period-container {
-    padding: 20px;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    margin-top: 20px;
-    text-align: left;
-}
+/* ... (los estilos de rendición de gastos se mantienen igual) ... */
+#start-period-container, #active-period-container, #admin-active-period-container, #admin-no-period-container { padding: 20px; border: 1px solid #eee; border-radius: 8px; margin-top: 20px; text-align: left; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 .form-grid .form-group.full-width { grid-column: 1 / -1; }
 .period-summary { background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
-.period-summary h3 { margin-top: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 10px; }
+.period-summary h3 { margin-top: 0; padding-bottom: 10px; }
 .summary-details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; }
 .summary-details p { margin: 5px 0; }
 .summary-details .saldo { grid-column: 1 / -1; font-size: 1.3em; font-weight: bold; color: var(--color-primary); margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px; }
 #add-expense-form { margin-bottom: 30px; }
 .table-container { overflow-x: auto; }
 #expenses-table, #admin-expenses-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-#expenses-table th, #expenses-table td,
-#admin-expenses-table th, #admin-expenses-table td { border: 1px solid var(--color-border); padding: 10px 12px; text-align: left; }
+#expenses-table th, #expenses-table td, #admin-expenses-table th, #admin-expenses-table td { border: 1px solid var(--color-border); padding: 10px 12px; text-align: left; }
 #expenses-table thead, #admin-expenses-table thead { background-color: var(--color-primary-light); color: var(--color-text-light); }
 #expenses-table tbody tr:nth-child(even), #admin-expenses-table tbody tr:nth-child(even) { background-color: #f9f9f9; }
 .delete-btn { background-color: #ef4444; color: white; border: none; border-radius: 4px; padding: 5px 10px; font-size: 0.8em; cursor: pointer; transition: background-color 0.2s; }
@@ -312,66 +255,141 @@
 /* ============================================== */
 /* ESTILOS PARA EL PANEL DE ADMINISTRACIÓN        */
 /* ============================================== */
-#admin-panel-container,
-#admin-driver-details-view {
+/* ... (los estilos del panel de admin se mantienen igual) ... */
+#admin-panel-container, #admin-driver-details-view { text-align: left; }
+.driver-list { list-style: none; padding: 0; margin-top: 20px; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; }
+.driver-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--color-border); }
+.driver-item:last-child { border-bottom: none; }
+.driver-item:hover { background-color: #f9f9f9; }
+.driver-item span { font-weight: 600; }
+.view-btn { background-color: var(--color-primary-light); color: white; border: none; border-radius: 4px; padding: 6px 12px; font-size: 0.9em; cursor: pointer; transition: background-color 0.2s; }
+.view-btn:hover { background-color: var(--color-primary); }
+#back-to-list-btn { background: none; border: 1px solid var(--color-border); color: var(--color-text-base); padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 20px; font-weight: 600; transition: background-color 0.2s, color 0.2s; }
+#back-to-list-btn:hover { background-color: #eee; color: var(--color-primary); }
+#details-driver-name { margin-top: 0; margin-bottom: 20px; color: var(--color-accent); border-bottom: 1px solid var(--color-border); padding-bottom: 10px; }
+
+/* ============================================== */
+/* ESTILOS PARA HISTORIAL DE VIAJES (¡NUEVO!)     */
+/* ============================================== */
+.history-item {
+    background-color: #fdfdfd;
+    border: 1px solid #e0e0e0;
+    border-left: 5px solid var(--color-primary-light);
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: box-shadow 0.3s ease;
+}
+.history-item:hover {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+.history-summary {
+    font-size: 0.95em;
+    color: #333;
+}
+hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 30px 0;
+}
+
+.history-item .history-summary {
+    cursor: pointer;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.history-item .history-summary:hover {
+    background-color: #e9ecef;
+}
+
+.history-details {
+    display: none; /* Oculto por defecto */
+    padding: 15px;
+    margin-top: 5px;
+    border-top: 1px solid #ddd;
+    background-color: #fff;
+}
+
+/* Estilos para la vista de turno configurado */
+#shift-display-view {
     text-align: left;
-}
-.driver-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 20px;
-    border: 1px solid var(--color-border);
+    padding: 15px;
+    background-color: #e9f5ff;
+    border: 1px solid #b3d7f5;
     border-radius: 8px;
-    overflow: hidden;
 }
-.driver-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 15px;
-    border-bottom: 1px solid var(--color-border);
+.current-shift-info p {
+    margin: 5px 0;
+    font-size: 1.1em;
 }
-.driver-item:last-child {
-    border-bottom: none;
-}
-.driver-item:hover {
-    background-color: #f9f9f9;
-}
-.driver-item span {
-    font-weight: 600;
-}
-.view-btn {
+.action-btn {
     background-color: var(--color-primary-light);
     color: white;
     border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
-    font-size: 0.9em;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.view-btn:hover {
-    background-color: var(--color-primary);
-}
-#back-to-list-btn {
-    background: none;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-base);
     padding: 8px 15px;
     border-radius: 5px;
     cursor: pointer;
-    margin-bottom: 20px;
-    font-weight: 600;
-    transition: background-color 0.2s, color 0.2s;
+    font-size: 0.9em;
+    margin-top: 10px;
 }
-#back-to-list-btn:hover {
-    background-color: #eee;
+.action-btn:hover {
+    background-color: var(--color-primary);
+}
+
+/* ============================================== */
+/* ESTILOS PARA MODAL DE EDICIÓN (¡NUEVO!)        */
+/* ============================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1050;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background-color: var(--color-surface);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+}
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 2.5em;
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1;
+}
+.close-button:hover {
+    color: var(--color-text-base);
+}
+.modal-content h2 {
+    margin-top: 0;
     color: var(--color-primary);
 }
-#details-driver-name {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: var(--color-accent);
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 10px;
+.driver-item .actions {
+    display: flex;
+    gap: 10px;
+}
+.edit-btn {
+    background-color: var(--color-accent);
+    color: white;
+    padding: 6px 12px;
+}
+.edit-btn:hover {
+    background-color: var(--color-accent-hover);
 }
