@@ -1,7 +1,7 @@
 /*
  * ---------------------------------------------------
  * SCRIPT PARA LA PÁGINA DE USUARIOS (LOGIN Y DASHBOARD)
- * Versión 17.1 - Formateo de Monto Inicial
+ * Versión 17.0 - Spinners de Carga Global
  * ---------------------------------------------------
  */
 document.addEventListener('DOMContentLoaded', function() {

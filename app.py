@@ -4,6 +4,8 @@
 # =================================================================
 
 from flask import Flask, render_template, request, jsonify
+from dotenv import load_dotenv # <-- Añadir esta
+import os # <-- Y esta
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -12,12 +14,15 @@ import os
 from datetime import datetime, timedelta, date, timezone
 from decimal import Decimal
 
+load_dotenv()
+
 # -----------------------------------------------------------------
 # 1. INICIALIZACIÓN Y CONFIGURACIÓN
 # -----------------------------------------------------------------
 app = Flask(__name__)
 CORS(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://transporte_user:montana33@localhost:5432/transporte_db'
+# LÍNEA NUEVA Y SEGURA
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 

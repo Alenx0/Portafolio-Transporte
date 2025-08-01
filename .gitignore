@@ -7,3 +7,6 @@ __pycache__/
 
 # Archivo de configuración de Flask
 .flaskenv
+
+# secretos para claves
+.env

@@ -1,20 +1,20 @@
 /*
  * ---------------------------------------------------
  * TRANSPORTE UNIÓN SALAZAR - ESTILOS CSS PRINCIPALES
- * Versión 5.0 - Añadidos Estilos de Spinner Global
+ * Versión 6.2 - Animaciones Restauradas
  * ---------------------------------------------------
  * Contenido:
  * 0. Panel de Control de Diseño (Variables CSS)
  * 1. Estilos Generales y Base
  * 2. Estilos del Encabezado (Header)
  * 3. Estilos de la Navegación (Nav)
- * 4. Estilos de Contenido Específico (Sobre Nosotros, etc.)
+ * 4. Estilos de Contenido Específico
  * 5. Estilos del Carrusel de Imágenes
  * 6. Estilos del Botón Flotante (CTA)
- * 7. Estilos del Mega-Footer
+ * 7. Estilos del Footer
  * 8. Clases de Utilidad y JavaScript
  * 9. Estilos del Modal de Cotización
- * 10. ESTILOS DE COMPONENTES GLOBALES (¡NUEVO!)
+ * 10. Estilos de Componentes Globales (Spinner)
  * ---------------------------------------------------
  */
 
@@ -38,702 +38,385 @@
     --font-headings: 'Montserrat', sans-serif;
     --header-height-mobile: 60px;
     --header-height-desktop: 80px;
-  }
-  
-  /* ============================================== */
-  /* 1. ESTILOS GENERALES Y BASE                    */
-  /* ============================================== */
-  *, *::before, *::after {
-      box-sizing: border-box;
-  }
-  
-  html {
-      scroll-behavior: smooth;
-  }
-  
-  body {
-      font-family: var(--font-main);
-      color: var(--color-text-base);
-      background-color: var(--color-background);
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-      scroll-padding-top: var(--header-height-mobile);
-      font-size: 15px;
-  }
-  body.modal-open {
-      overflow: hidden;
-  }
-  
-  @media (min-width: 992px) {
-      body {
-          scroll-padding-top: var(--header-height-desktop);
-          font-size: 16px;
-      }
-  }
-  
-  main {
-      padding: 0;
-      padding-bottom: 50px;
-      padding-top: calc(var(--header-height-mobile) - 10px);
-  }
-  @media (min-width: 992px) {
-      main {
-          padding-top: calc(var(--header-height-desktop) - 20px);
-      }
-  }
-  
-  section {
-      background-color: var(--color-surface);
-      padding: 20px;
-      margin-bottom: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  section:not(#hero) {
-      margin-top: -50px; 
-      padding-top: calc(50px + 20px);
-  }
-  @media (min-width: 992px) {
-      section:not(#hero) {
-          margin-top: -70px;
-          padding-top: calc(70px + 20px);
-          margin-bottom: 60px;
-      }
-  }
-  
-  
-  h2 {
-      color: var(--color-text-base);
-      border-bottom: 2px solid var(--color-border);
-      padding-bottom: 0.5em;
-      margin-bottom: 1em;
-      margin-top: 0;
-      font-size: 1.8em;
-  }
-  @media (min-width: 992px) {
-      h2 {
-          font-size: 2.2em;
-      }
-  }
-  
-  a {
-      color: var(--color-primary);
-      text-decoration: none;
-      transition: color 0.3s ease;
-  }
-  a:hover {
-      color: var(--color-accent);
-  }
-  
-  /* ============================================== */
-  /* 2. ESTILOS DEL ENCABEZADO (HEADER)             */
-  /* ============================================== */
-  header {
-      background-color: var(--color-primary);
-      color: var(--color-text-light);
-      padding: 0.6em 1em;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      z-index: 1000;
-      min-height: var(--header-height-mobile);
-      flex-wrap: nowrap;
-      gap: 10px;
-  }
-  @media (min-width: 768px) and (max-width: 991px) {
-      header {
-          padding: 0.7em 1.5em;
-      }
-  }
-  @media (min-width: 992px) {
-      header {
-          padding: 0.8em 2em;
-          min-height: var(--header-height-desktop);
-          justify-content: flex-start;
-          gap: 20px;
-      }
-  }
-  
-  .header-logo {
-      max-height: clamp(30px, 5vw, 50px);
-      width: auto;
-      max-width: clamp(180px, 40vw, 300px);
-  }
-  @media (min-width: 768px) and (max-width: 991px) {
-      .header-logo {
-          max-height: clamp(25px, 6vw, 35px);
-          max-width: clamp(150px, 45vw, 250px);
-      }
-  }
-  @media (min-width: 992px) {
-      .header-logo {
-          max-height: 50px;
-          max-width: 350px;
-      }
-  }
-  
-  .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-left: auto;
-  }
-  @media (min-width: 768px) {
-      .header-controls {
-          flex-grow: 1;
-          justify-content: flex-end;
-          gap: 10px;
-      }
-  }
-  @media (min-width: 992px) {
-      .header-controls {
-          gap: 15px;
-      }
-  }
-  
-  .header-button {
-      background-color: var(--color-accent);
-      color: var(--color-text-light);
-      font-size: clamp(0.7em, 2vw, 0.9em);
-      padding: 0.5em 0.9em;
-      border-radius: 5px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: background-color 0.3s ease, transform 0.2s ease-in-out;
-      white-space: nowrap;
-  }
-  .header-button:hover {
-      background-color: var(--color-accent-hover);
-      transform: translateY(-2px);
-  }
-  @media (max-width: 400px) {
-      .header-controls .header-button {
-          display: none;
-      }
-  }
-  
-  /* ============================================== */
-  /* 3. ESTILOS DE LA NAVEGACIÓN (NAV)              */
-  /* ============================================== */
-  .nav-toggle {
-      background: transparent;
-      color: var(--color-text-light);
-      border: none;
-      cursor: pointer;
-      padding: 0.4em;
-      font-size: 1.6em;
-      z-index: 1002;
-      display: block;
-  }
-  .nav-toggle:focus {
-      border: 2px solid var(--color-text-light);
-      border-radius: 3px;
-  }
-  @media (min-width: 992px) {
-      .nav-toggle {
-          display: none !important;
-      }
-  }
-  
-  nav {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 100%;
-      height: 100vh;
-      background-color: rgba(30, 58, 138, 0.95);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transform: translateX(100%);
-      transition: transform 0.3s ease-in-out;
-      z-index: 999;
-      visibility: hidden;
-      opacity: 0;
-      pointer-events: none;
-  }
-  nav.show {
-      transform: translateX(0);
-      visibility: visible;
-      opacity: 1;
-      pointer-events: auto;
-  }
-  @media (min-width: 992px) {
-      nav {
-          position: static;
-          height: auto;
-          width: auto;
-          background-color: transparent;
-          transform: none;
-          visibility: visible;
-          opacity: 1;
-          pointer-events: auto;
-          margin-right: 20px;
-      }
-  }
-  
-  nav ul {
-      list-style: none;
-      padding: 90px 0 0 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 90%;
-      max-width: 280px;
-  }
-  @media (min-width: 992px) {
-      nav ul {
-          flex-direction: row;
-          padding: 0;
-          width: auto;
-          max-width: none;
-          gap: 1.2em;
-      }
-  }
-  
-  nav li a {
-      display: block;
-      padding: 0.6em 0.8em;
-      border-radius: 5px;
-      background-color: var(--color-primary-light);
-      color: var(--color-text-light);
-      text-decoration: none;
-      font-size: 1.1em;
-      transition: background-color 0.3s ease, color 0.2s ease-in-out, transform 0.2s ease-in-out;
-  }
-  nav li a:hover {
-      background-color: var(--color-accent);
-      color: var(--color-text-light);
-      transform: translateY(-2px);
-  }
-  @media (min-width: 992px) {
-      nav li a {
-          background-color: transparent;
-          font-size: clamp(0.75em, 0.9vw, 0.9em);
-          padding: 0.5em 0.7em;
-      }
-      nav li a:hover {
-          color: var(--color-link-footer);
-          background-color: transparent;
-      }
-  }
-  
-  .whatsapp-nav-button {
-      background-color: var(--color-whatsapp);
-      color: var(--color-text-light);
-      font-weight: bold;
-  }
-  .whatsapp-nav-button:hover {
-      background-color: var(--color-whatsapp-hover);
-      color: var(--color-text-light);
-  }
-  
-  /* ============================================== */
-  /* 4. ESTILOS DE CONTENIDO ESPECÍFICO             */
-  /* ============================================== */
-  .about-content,
-  .environmental-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 25px;
-  }
-  @media (min-width: 992px) {
-      .about-content,
-      .environmental-content {
-          flex-direction: row;
-          justify-content: space-between;
-          align-items: flex-start;
-      }
-      .about-content .about-text,
-      .environmental-content .environmental-text {
-          flex: 1;
-          padding-right: 30px;
-      }
-      .about-content .about-image,
-      .environmental-content .environmental-image {
-          flex-shrink: 0;
-          width: 45%;
-          max-width: 500px;
-      }
-      .environmental-content .environmental-text {
-          order: -1;
-      }
-  }
-  
-  #sobre-nosotros img,
-  #compromiso-ambiental img {
-      width: 100%;
-      max-width: 400px;
-      height: 250px;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      margin: 0 auto;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-  @media (min-width: 768px) and (max-width: 991px) {
-      #sobre-nosotros img,
-      #compromiso-ambiental img {
-          height: 300px;
-          max-width: 500px;
-      }
-  }
-  @media (min-width: 992px) {
-      #sobre-nosotros img,
-      #compromiso-ambiental img {
-          width: 100%;
-          height: 350px;
-          max-width: none;
-      }
-  }
-  
-  /* ============================================== */
-  /* 5. ESTILOS DEL CARRUSEL DE IMÁGENES            */
-  /* ============================================== */
-  #hero {
-      padding: 0;
-      margin: 0;
-      width: 100%;
-      height: calc(100vh - (var(--header-height-mobile) - 10px) );
-      background-color: #000;
-  }
-  @media (min-width: 992px) {
-      #hero {
-          height: calc(100vh - (var(--header-height-desktop) - 20px) );
-      }
-  }
-  
-  .carousel-container {
-      position: relative;
-      width: 100%;
-      height: 90%;
-      max-width: none;
-      margin: 0;
-      overflow: hidden;
-      border-radius: 0;
-      box-shadow: none;
-      aspect-ratio: auto;
-  }
-  .carousel-slide {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      opacity: 0; transition: opacity 0.7s ease-in-out; pointer-events: none;
-      background-size: cover; background-position: center; background-repeat: no-repeat;
-      display: flex; color: var(--color-text-light);
-  }
-  .carousel-slide.active { opacity: 1; pointer-events: auto; z-index: 2; }
-  .carousel-slide-1 { background-image: url('../img/imagen1.jpg'); }
-  .carousel-slide-2 { background-image: url('../img/imagen2.jpg'); }
-  .carousel-slide-3 { background-image: url('../img/imagen3.jpg'); }
-  .carousel-slide-4 { background-image: url('../img/imagen4.jpg'); }
-  .carousel-slide-5 { background-image: url('../img/imagen5.jpeg'); }
-  .carousel-slide-6 { background-image: url('../img/imagen6.jpeg'); }
-  .carousel-slide-7 { background-image: url('../img/imagen7.jpeg'); }
-  .carousel-slide-8 { background-image: url('../img/imagen8.jpg'); }
-  .slide-content {
-      position: absolute; padding: 20px 40px; border-radius: 10px;
-      color: var(--color-text-light); z-index: 5; top: auto; left: 40px;
-      bottom: 40px; transform: none; text-align: left; max-width: 45%;
-      background-color: rgba(0, 0, 0, 0.5); 
-  }
-  .slide-content h3 { font-size: clamp(1.5em, 3.5vw, 2.8em); margin-bottom: 8px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); margin-top: 0; }
-  .slide-content p { font-size: clamp(0.9em, 2vw, 1.2em); line-height: 1.5; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
-  .carousel-navigation { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); display: flex; justify-content: space-between; align-items: center; padding: 0 25px; z-index: 10; }
-  .carousel-navigation button { background-color: rgba(0, 0, 0, 0.5); color: var(--color-text-light); padding: 12px 18px; border: none; border-radius: 50%; cursor: pointer; font-size: 1.5em; transition: background-color 0.3s ease, transform 0.2s ease; }
-  .carousel-navigation button:hover { background-color: rgba(0, 0, 0, 0.8); transform: scale(1.1); }
-  .carousel-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 12px; }
-  .carousel-dots .dot { width: 12px; height: 12px; background-color: rgba(255, 255, 255, 0.6); border-radius: 50%; cursor: pointer; transition: background-color 0.3s ease; }
-  .carousel-dots .dot.active { background-color: var(--color-accent); }
-  
-  /* ============================================== */
-  /* 6. ESTILOS DEL BOTÓN FLOTANTE (CTA)            */
-  /* ============================================== */
-  .floating-cta-button {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1040; 
-      background-color: var(--color-accent);
-      color: var(--color-text-light);
-      border-radius: 50px;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1em;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease, background-color 0.3s ease;
-      animation: float-animation 3s ease-in-out infinite;
-  }
-  .floating-cta-button:hover {
-      background-color: var(--color-accent-hover);
-      transform: translateY(-5px) scale(1.05);
-      animation-play-state: paused;
-  }
-  @keyframes float-animation {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-      100% { transform: translateY(0); }
-  }
-  @media (max-width: 767px) {
-      .floating-cta-button span {
-          display: none;
-      }
-      .floating-cta-button {
-          width: 50px;
-          height: 50px;
-          justify-content: center;
-          padding: 0;
-      }
-  }
-  
-  /* ============================================== */
-  /* 7. ESTILOS DEL FOOTER                          */
-  /* ============================================== */
-  #site-footer {
-      background-color: var(--color-primary);
-      color: rgba(255, 255, 255, 0.8);
-      padding: 40px 20px;
-  }
-  .footer-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 30px;
-      text-align: center;
-  }
-  @media (min-width: 768px) {
-      .footer-container {
-          grid-template-columns: repeat(3, 1fr);
-          text-align: left;
-      }
-  }
-  @media (min-width: 992px) {
-      .footer-container {
-          grid-template-columns: 2fr 1fr 2fr;
-      }
-  }
-  .footer-column h4 {
-      color: var(--color-text-light);
-      font-family: var(--font-headings);
-      margin-bottom: 15px;
-      border-bottom: 2px solid var(--color-accent);
-      padding-bottom: 10px;
-      display: inline-block;
-  }
-  .footer-logo {
-      max-width: 200px;
-      margin-bottom: 15px;
-  }
-  @media (max-width: 767px) {
-      .footer-logo {
-          margin-left: auto;
-          margin-right: auto;
-      }
-  }
-  .footer-column ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-  }
-  .footer-column ul li {
-      margin-bottom: 10px;
-  }
-  .footer-column ul a {
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      transition: color 0.3s ease, padding-left 0.3s ease;
-  }
-  .footer-column ul a:hover {
-      color: var(--color-link-footer);
-      padding-left: 5px;
-  }
-  .contact-info-list i {
-      color: var(--color-accent);
-      margin-right: 10px;
-      width: 20px;
-      text-align: center;
-  }
-  .footer-bottom {
-      max-width: 1200px;
-      margin: 40px auto 0;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-  }
-  @media (min-width: 768px) {
-      .footer-bottom {
-          flex-direction: row;
-          justify-content: space-between;
-      }
-  }
-  .logos-laboratorios {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 15px;
-  }
-  .logos-laboratorios img {
-      height: 35px;
-      opacity: 0.7;
-      transition: opacity 0.3s ease;
-  }
-  .logos-laboratorios img:hover {
-      opacity: 1;
-  }
-  
-  /* ============================================== */
-  /* 8. CLASES DE UTILIDAD Y JAVASCRIPT             */
-  /* ============================================== */
-  .fade-in-section {
-      opacity: 0;
-      transition: opacity 0.6s ease-out;
-      will-change: opacity;
-  }
-  .fade-in-section.is-visible {
-      opacity: 1;
-  }
-  .hidden {
-      display: none !important;
-  }
-  
-  /* ============================================== */
-  /* 9. ESTILOS DEL MODAL DE COTIZACIÓN             */
-  /* ============================================== */
-  .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
-      z-index: 1050;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-  }
-  .modal-overlay:not(.hidden) {
-      opacity: 1;
-  }
-  .modal-content {
-      background-color: var(--color-surface);
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-      position: relative;
-      width: 100%;
-      max-width: 550px;
-      max-height: 90vh;
-      overflow-y: auto;
-      transform: scale(0.9);
-      transition: transform 0.3s ease;
-  }
-  .modal-overlay:not(.hidden) .modal-content {
-      transform: scale(1);
-  }
-  .close-button {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      background: transparent;
-      border: none;
-      font-size: 2.5em;
-      color: #aaa;
-      cursor: pointer;
-      line-height: 1;
-      padding: 0;
-      transition: color 0.2s ease;
-  }
-  .close-button:hover {
-      color: var(--color-text-base);
-  }
-  .modal-content h2 {
-      margin-top: 0;
-      color: var(--color-primary);
-  }
-  .modal-content #contact-form {
-      border: none;
-      padding: 0;
-      background-color: transparent;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 15px;
-  }
-  .modal-content .form-group {
-      display: flex;
-      flex-direction: column;
-  }
-  .modal-content #contact-form label {
-      margin-bottom: 6px;
-      font-weight: 600;
-      font-size: 0.9em;
-      color: #555;
-  }
-  .modal-content #contact-form input,
-  .modal-content #contact-form select,
-  .modal-content #contact-form textarea {
-      width: 100%;
-      padding: 12px 15px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1em;
-      font-family: var(--font-main);
-      background-color: #f9f9f9;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  }
-  .modal-content #contact-form input:focus,
-  .modal-content #contact-form select:focus,
-  .modal-content #contact-form textarea:focus {
-      outline: none;
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
-  }
-  .modal-content #contact-form textarea {
-      resize: vertical;
-      min-height: 100px;
-  }
-  .modal-content #submit-button {
-      background-image: linear-gradient(to right, var(--color-accent) 0%, var(--color-accent-hover) 100%);
-      color: var(--color-text-light);
-      padding: 12px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1.1em;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      margin-top: 10px;
-  }
-  .modal-content #submit-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  .modal-content #submit-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-  }
-  .form-message {
-      margin-top: 15px;
-      font-weight: bold;
-      text-align: center;
-  }
+}
+
+/* ============================================== */
+/* 1. ESTILOS GENERALES Y BASE                    */
+/* ============================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+html {
+    scroll-behavior: smooth;
+}
+body {
+    font-family: var(--font-main);
+    color: var(--color-text-base);
+    background-color: var(--color-background);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+body.modal-open {
+    overflow: hidden;
+}
+
+main {
+    padding-bottom: 50px;
+    scroll-padding-top: calc(var(--header-height-mobile) + 20px); 
+}
+@media (min-width: 992px) {
+    main {
+        scroll-padding-top: calc(var(--header-height-desktop) + 20px);
+    }
+}
+section {
+    background-color: var(--color-surface);
+    padding: 30px;
+    margin: 0 auto 30px auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 1100px;
+}
+@media (max-width: 1100px) {
+    section {
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+}
+
+h2 {
+    color: var(--color-text-base);
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 0.5em;
+    margin-bottom: 1em;
+    margin-top: 0;
+    font-size: 1.8em;
+}
+@media (min-width: 992px) {
+    h2 {
+        font-size: 2.2em;
+    }
+}
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+a:hover {
+    color: var(--color-accent);
+}
+
+/* ============================================== */
+/* 2. ESTILOS DEL ENCABEZADO (HEADER)             */
+/* ============================================== */
+header {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    padding: 0 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    height: var(--header-height-mobile);
+}
+@media (min-width: 992px) {
+    header {
+        padding: 0 2em;
+        height: var(--header-height-desktop);
+    }
+}
+
+.header-logo {
+    max-height: 40px;
+    width: auto;
+}
+@media (min-width: 992px) {
+    .header-logo {
+        max-height: 50px;
+    }
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-button {
+    background-color: var(--color-accent);
+    color: var(--color-text-light);
+    font-size: 0.8em;
+    padding: 0.5em 1em;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+    white-space: nowrap;
+}
+.header-button:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-2px);
+}
+
+/* ============================================== */
+/* 3. ESTILOS DE LA NAVEGACIÓN (NAV)              */
+/* ============================================== */
+.nav-toggle {
+    background: transparent;
+    color: var(--color-text-light);
+    border: none;
+    cursor: pointer;
+    padding: 0.4em;
+    font-size: 1.6em;
+    z-index: 1002;
+    display: block;
+}
+@media (min-width: 992px) {
+    .nav-toggle {
+        display: none !important;
+    }
+}
+
+nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(30, 58, 138, 0.98);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 999;
+    visibility: hidden;
+}
+nav.show {
+    transform: translateX(0);
+    visibility: visible;
+}
+@media (min-width: 992px) {
+    nav {
+        position: static;
+        height: auto;
+        width: auto;
+        background-color: transparent;
+        transform: none;
+        visibility: visible;
+        margin-right: 20px;
+    }
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+}
+@media (min-width: 992px) {
+    nav ul {
+        flex-direction: row;
+        gap: 1.2em;
+    }
+}
+
+nav li a {
+    color: var(--color-text-light);
+    text-decoration: none;
+    font-size: 1.2em;
+    padding: 0.5em 1em;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+nav li a:hover {
+    background-color: var(--color-accent);
+}
+@media (min-width: 992px) {
+    nav li a {
+        font-size: 1em;
+        padding: 0.5em 0.7em;
+    }
+    nav li a:hover {
+        color: var(--color-link-footer);
+        background-color: transparent;
+    }
+}
+
+/* ============================================== */
+/* 4. ESTILOS DE CONTENIDO ESPECÍFICO             */
+/* ============================================== */
+.about-content,
+.environmental-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+}
+@media (min-width: 992px) {
+    .about-content,
+    .environmental-content {
+        flex-direction: row;
+        gap: 40px;
+    }
+}
+.about-image img,
+.environmental-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* ============================================== */
+/* 5. ESTILOS DEL CARRUSEL DE IMÁGENES             */
+/* ============================================== */
+#hero {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    margin-top: var(--header-height-mobile); 
+    height: calc(100vh - var(--header-height-mobile));
+    background-color: var(--color-background);
+    max-width: none;
+}
+@media (min-width: 992px) {
+    #hero {
+        margin-top: var(--header-height-desktop);
+        height: calc(100vh - var(--header-height-desktop));
+    }
+}
+.carousel-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.carousel-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.7s ease-in-out; background-size: cover; background-position: center; }
+.carousel-slide.active { opacity: 1; }
+.slide-content { position: absolute; padding: 20px 40px; border-radius: 10px; color: var(--color-text-light); z-index: 5; bottom: 40px; left: 40px; max-width: 90%; background-color: rgba(0, 0, 0, 0.6); }
+@media (min-width: 768px) { .slide-content { max-width: 45%; } }
+.slide-content h3 { font-size: clamp(1.5em, 3.5vw, 2.8em); margin-bottom: 8px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); margin-top: 0; }
+.slide-content p { font-size: clamp(0.9em, 2vw, 1.2em); line-height: 1.5; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+.carousel-navigation { position: absolute; top: 50%; width: 100%; transform: translateY(-50%); display: flex; justify-content: space-between; padding: 0 15px; z-index: 10; }
+.carousel-navigation button { background-color: rgba(0, 0, 0, 0.4); color: var(--color-text-light); padding: 10px 15px; border: none; border-radius: 50%; cursor: pointer; font-size: 1.5em; transition: background-color 0.3s ease; }
+.carousel-navigation button:hover { background-color: rgba(0, 0, 0, 0.7); }
+.carousel-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 12px; }
+.carousel-dots .dot { width: 12px; height: 12px; background-color: rgba(255, 255, 255, 0.6); border-radius: 50%; cursor: pointer; transition: background-color 0.3s ease; }
+.carousel-dots .dot.active { background-color: var(--color-accent); }
+
+/* ============================================== */
+/* 6. ESTILOS DEL BOTÓN FLOTANTE (CTA)            */
+/* ============================================== */
+.floating-cta-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1040; 
+    background-color: var(--color-accent);
+    color: var(--color-text-light);
+    border-radius: 50px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1em;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    animation: float-animation 3s ease-in-out infinite;
+}
+.floating-cta-button:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-5px);
+    animation-play-state: paused;
+}
+@keyframes float-animation {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0); }
+}
+@media (max-width: 767px) {
+    .floating-cta-button span {
+        display: none;
+    }
+    .floating-cta-button {
+        width: 50px;
+        height: 50px;
+        justify-content: center;
+        padding: 0;
+        font-size: 1.2em;
+    }
+}
+
+/* ============================================== */
+/* 7. ESTILOS DEL FOOTER                          */
+/* ============================================== */
+#site-footer { background-color: var(--color-primary); color: rgba(255, 255, 255, 0.8); padding: 40px 20px; }
+.footer-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 30px; text-align: center; }
+@media (min-width: 768px) { .footer-container { grid-template-columns: repeat(3, 1fr); text-align: left; } }
+.footer-column h4 { color: var(--color-text-light); font-family: var(--font-headings); margin-bottom: 15px; border-bottom: 2px solid var(--color-accent); padding-bottom: 10px; display: inline-block; }
+.footer-logo { max-width: 200px; margin-bottom: 15px; }
+@media (max-width: 767px) { .footer-logo { margin-left: auto; margin-right: auto; } }
+.footer-column ul { list-style: none; padding: 0; margin: 0; }
+.footer-column ul li { margin-bottom: 10px; }
+.footer-column ul a {
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.3s ease, padding-left 0.3s ease;
+}
+.footer-column ul a:hover {
+    color: var(--color-link-footer);
+    padding-left: 5px;
+}
+.contact-info-list i { color: var(--color-accent); margin-right: 10px; width: 20px; text-align: center; }
+.footer-bottom { max-width: 1200px; margin: 40px auto 0; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.2); display: flex; flex-direction: column; align-items: center; gap: 20px; }
+@media (min-width: 768px) { .footer-bottom { flex-direction: row; justify-content: space-between; } }
+.logos-laboratorios { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; }
+.logos-laboratorios img { height: 35px; opacity: 0.7; transition: opacity 0.3s ease; }
+.logos-laboratorios img:hover { opacity: 1; }
+
+/* ============================================== */
+/* 8. CLASES DE UTILIDAD Y JAVASCRIPT             */
+/* ============================================== */
+.hidden { display: none !important; }
+
+/* ============================================== */
+/* 9. ESTILOS DEL MODAL DE COTIZACIÓN             */
+/* ============================================== */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 1050; display: flex; justify-content: center; align-items: center; padding: 20px; opacity: 0; transition: opacity 0.3s ease; visibility: hidden; }
+.modal-overlay:not(.hidden) { opacity: 1; visibility: visible; }
+.modal-content { background-color: var(--color-surface); padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); position: relative; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.3s ease; }
+.modal-overlay:not(.hidden) .modal-content { transform: scale(1); }
+.close-button { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 2.5em; color: #aaa; cursor: pointer; line-height: 1; padding: 0; transition: color 0.2s ease; }
+.close-button:hover { color: var(--color-text-base); }
+
+/* ============================================== */
+/* 10. ESTILOS DE COMPONENTES GLOBALES (Spinner)  */
+/* ============================================== */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.spinner-overlay:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+}
+.spinner i {
+    font-size: 3.5rem;
+    color: var(--color-primary);
+}
