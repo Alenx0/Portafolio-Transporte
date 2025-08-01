@@ -1,16 +1,15 @@
 # =================================================================
 # APLICACIÓN FLASK PARA TRANSPORTE UNIÓN SALAZAR
-# Versión 10.0 - Código Refactorizado y Finalizado
+# Versión 10.2 - Login Insensible a Mayúsculas
 # =================================================================
 
 from flask import Flask, render_template, request, jsonify
-from dotenv import load_dotenv # <-- Añadir esta
-import os # <-- Y esta
+from dotenv import load_dotenv
+import os
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
 from datetime import datetime, timedelta, date, timezone
 from decimal import Decimal
 
@@ -21,8 +20,7 @@ load_dotenv()
 # -----------------------------------------------------------------
 app = Flask(__name__)
 CORS(app)
-# LÍNEA NUEVA Y SEGURA
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://transporte_user:montana33@localhost:5432/transporte_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
@@ -67,7 +65,7 @@ class WorkPeriod(db.Model):
         return {
             "id": self.id, "start_date": self.start_date.isoformat(), "status": self.status,
             "patente": self.patente, "rut": self.rut, "trip_origin": self.trip_origin,
-            "trip_destination": self.trip_destination, "initial_amount": float(self.initial_amount)
+            "trip_destination": self.trip_destination, "initial_amount": str(self.initial_amount)
         }
 
 class Expense(db.Model):
@@ -78,7 +76,7 @@ class Expense(db.Model):
     amount = db.Column(db.Numeric(10, 2), nullable=False)
     notes = db.Column(db.Text, nullable=True)
     work_period_id = db.Column(db.Integer, db.ForeignKey('work_period.id'), nullable=False)
-    def to_dict(self): return {"id": self.id, "date": self.date.isoformat(), "category": self.category, "amount": float(self.amount), "notes": self.notes}
+    def to_dict(self): return {"id": self.id, "date": self.date.isoformat(), "category": self.category, "amount": str(self.amount), "notes": self.notes}
 
 
 # -----------------------------------------------------------------
@@ -98,9 +96,14 @@ def register():
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password'):
         return jsonify({"success": False, "message": "Faltan datos."}), 400
-    if User.query.filter_by(username=data.get('username')).first():
+    
+    # Guardamos el nombre de usuario siempre en minúsculas
+    username = data.get('username').lower()
+
+    if User.query.filter_by(username=username).first():
         return jsonify({"success": False, "message": "El nombre de usuario ya existe."}), 409
-    new_user = User(username=data.get('username'))
+    
+    new_user = User(username=username)
     new_user.set_password(data.get('password'))
     db.session.add(new_user)
     db.session.commit()
@@ -109,14 +112,21 @@ def register():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user = User.query.filter_by(username=data.get('username')).first()
+    # ***** CAMBIO IMPORTANTE AQUÍ *****
+    # Convertimos el username a minúsculas antes de buscar en la BD
+    username = data.get('username').lower()
+    user = User.query.filter_by(username=username).first()
+    
     if not user or not user.check_password(data.get('password')):
         return jsonify({"success": False, "message": "Usuario o contraseña incorrectos."}), 401
+    
     user_data = {
         "username": user.username, "role": user.role, "shift_type": user.shift_type,
         "shift_start_date": user.shift_start_date.isoformat() if user.shift_start_date else None
     }
     return jsonify({"success": True, "message": "¡Login exitoso!", "user": user_data}), 200
+
+# ... (El resto del archivo app.py permanece sin cambios) ...
 
 @app.route('/api/user/shift', methods=['GET', 'POST'])
 def handle_shift():

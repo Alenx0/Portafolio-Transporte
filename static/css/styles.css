@@ -1,7 +1,7 @@
 /*
  * ---------------------------------------------------
  * TRANSPORTE UNIÓN SALAZAR - ESTILOS CSS PRINCIPALES
- * Versión 6.2 - Animaciones Restauradas
+ * Versión 8.0 - Ajuste de Foco en Imagen de Fondo
  * ---------------------------------------------------
  * Contenido:
  * 0. Panel de Control de Diseño (Variables CSS)
@@ -29,7 +29,7 @@
     --color-text-base: #333;
     --color-background: #f8f8f8;
     --color-surface: #ffffff;
-    --color-border: #ccc;
+    --color-border: #e5e7eb; /* Borde más sutil */
     --color-whatsapp: #25d366;
     --color-whatsapp-hover: #128c7e;
     --color-text-light: #ffffff;
@@ -48,7 +48,15 @@
 }
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-height-mobile) + 20px);
 }
+
+@media (min-width: 992px) {
+    html {
+        scroll-padding-top: calc(var(--header-height-desktop) + 20px);
+    }
+}
+
 body {
     font-family: var(--font-main);
     color: var(--color-text-base);
@@ -63,13 +71,8 @@ body.modal-open {
 
 main {
     padding-bottom: 50px;
-    scroll-padding-top: calc(var(--header-height-mobile) + 20px); 
 }
-@media (min-width: 992px) {
-    main {
-        scroll-padding-top: calc(var(--header-height-desktop) + 20px);
-    }
-}
+
 section {
     background-color: var(--color-surface);
     padding: 30px;
@@ -222,12 +225,6 @@ nav ul {
     align-items: center;
     gap: 1em;
 }
-@media (min-width: 992px) {
-    nav ul {
-        flex-direction: row;
-        gap: 1.2em;
-    }
-}
 
 nav li a {
     color: var(--color-text-light);
@@ -240,44 +237,190 @@ nav li a {
 nav li a:hover {
     background-color: var(--color-accent);
 }
+
 @media (min-width: 992px) {
+    nav ul {
+        flex-direction: row;
+        gap: 1.2em;
+    }
+
     nav li a {
         font-size: 1em;
         padding: 0.5em 0.7em;
+        position: relative; 
+        text-decoration: none;
+        color: var(--color-text-light);
+        transition: color 0.3s ease, transform 0.3s ease;
     }
+
+    nav li a::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background-color: var(--color-accent);
+        bottom: -4px;
+        left: 0;
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.3s ease-out;
+    }
+
     nav li a:hover {
         color: var(--color-link-footer);
         background-color: transparent;
+        transform: translateY(-3px);
+    }
+
+    nav li a:hover::after {
+        transform: scaleX(1);
     }
 }
 
 /* ============================================== */
 /* 4. ESTILOS DE CONTENIDO ESPECÍFICO             */
 /* ============================================== */
-.about-content,
-.environmental-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+#sobre-nosotros, #compromiso-ambiental {
+    max-width: none;
+    padding: 0;
+    position: relative;
+    background-size: cover;
+    background-position: center bottom; /* <-- CAMBIO AQUÍ */
+    background-attachment: fixed;
+    color: var(--color-text-light);
+    text-align: center;
+}
+#sobre-nosotros::before, #compromiso-ambiental::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7));
+    z-index: 1;
+}
+.about-content-overlay, .environmental-content-overlay {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+#sobre-nosotros h2, #compromiso-ambiental h2 {
+    color: var(--color-text-light);
+    border-bottom-color: var(--color-accent);
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+#sobre-nosotros p, #compromiso-ambiental p {
+    font-size: 1.1em;
+    line-height: 1.8;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+.about-cta-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 25px;
+    background-color: var(--color-accent);
+    color: var(--color-text-light);
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.about-cta-button:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-2px);
+    color: var(--color-text-light);
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 25px;
 }
-@media (min-width: 992px) {
-    .about-content,
-    .environmental-content {
-        flex-direction: row;
-        gap: 40px;
-    }
-}
-.about-image img,
-.environmental-image img {
-    width: 100%;
-    height: auto;
+.service-item {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 25px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.4s ease;
+}
+.service-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+.service-item i {
+    font-size: 2.5em;
+    color: var(--color-primary);
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
+}
+.service-item:hover i {
+    color: var(--color-accent);
+}
+.service-item h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-family: var(--font-headings);
+}
+.service-details {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 25px;
+    background-color: var(--color-surface);
+    transform: translateY(100%);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.service-item.expanded {
+    grid-column: 1 / -1;
+    min-height: 300px;
+    cursor: default;
+    transform: translateY(0);
+}
+.service-item.expanded .service-preview {
+    opacity: 0;
+    transform: translateY(-100%);
+}
+.service-item.expanded .service-details {
+    opacity: 1;
+    transform: translateY(0);
+}
+.services-grid.expanded .service-item:not(.expanded) {
+    opacity: 0.2;
+    pointer-events: none;
+    transform: scale(0.95);
+}
+.close-service {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 2em;
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+.close-service:hover {
+    color: var(--color-text-base);
 }
 
 /* ============================================== */
-/* 5. ESTILOS DEL CARRUSEL DE IMÁGENES             */
+/* 5. ESTILOS DEL CARRUSEL DE IMÁGENES            */
 /* ============================================== */
 #hero {
     padding: 0;
@@ -287,6 +430,7 @@ nav li a:hover {
     height: calc(100vh - var(--header-height-mobile));
     background-color: var(--color-background);
     max-width: none;
+    margin-bottom: 30px;
 }
 @media (min-width: 992px) {
     #hero {
@@ -297,10 +441,53 @@ nav li a:hover {
 .carousel-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
 .carousel-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.7s ease-in-out; background-size: cover; background-position: center; }
 .carousel-slide.active { opacity: 1; }
-.slide-content { position: absolute; padding: 20px 40px; border-radius: 10px; color: var(--color-text-light); z-index: 5; bottom: 40px; left: 40px; max-width: 90%; background-color: rgba(0, 0, 0, 0.6); }
-@media (min-width: 768px) { .slide-content { max-width: 45%; } }
-.slide-content h3 { font-size: clamp(1.5em, 3.5vw, 2.8em); margin-bottom: 8px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); margin-top: 0; }
-.slide-content p { font-size: clamp(0.9em, 2vw, 1.2em); line-height: 1.5; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+
+.slide-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 80px 40px 40px 40px;
+    color: var(--color-text-light);
+    z-index: 5;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 10%, transparent 100%);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    transition-delay: 0.4s;
+}
+.carousel-slide.active .slide-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+@media (min-width: 768px) { 
+    .slide-content { 
+        width: 60%;
+        max-width: 700px;
+        left: 40px;
+        bottom: 40px;
+        background: linear-gradient(to right, rgba(0, 0, 0, 0.85) 20%, transparent 100%);
+        padding: 40px;
+        border-radius: 0;
+    } 
+}
+.slide-content h3 {
+    font-family: var(--font-headings);
+    font-size: clamp(1.8em, 4vw, 3em);
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    margin-top: 0;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.slide-content p {
+    font-size: clamp(1em, 2.5vw, 1.2em);
+    line-height: 1.6;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    max-width: 600px;
+}
+
 .carousel-navigation { position: absolute; top: 50%; width: 100%; transform: translateY(-50%); display: flex; justify-content: space-between; padding: 0 15px; z-index: 10; }
 .carousel-navigation button { background-color: rgba(0, 0, 0, 0.4); color: var(--color-text-light); padding: 10px 15px; border: none; border-radius: 50%; cursor: pointer; font-size: 1.5em; transition: background-color 0.3s ease; }
 .carousel-navigation button:hover { background-color: rgba(0, 0, 0, 0.7); }
@@ -389,10 +576,76 @@ nav li a:hover {
 /* ============================================== */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 1050; display: flex; justify-content: center; align-items: center; padding: 20px; opacity: 0; transition: opacity 0.3s ease; visibility: hidden; }
 .modal-overlay:not(.hidden) { opacity: 1; visibility: visible; }
-.modal-content { background-color: var(--color-surface); padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); position: relative; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.3s ease; }
+.modal-content { background-color: var(--color-surface); padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); position: relative; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.3s ease; text-align: center;}
 .modal-overlay:not(.hidden) .modal-content { transform: scale(1); }
 .close-button { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 2.5em; color: #aaa; cursor: pointer; line-height: 1; padding: 0; transition: color 0.2s ease; }
 .close-button:hover { color: var(--color-text-base); }
+
+.modal-content h2 {
+    font-family: var(--font-headings);
+    font-size: 1.8em;
+    color: var(--color-primary);
+    margin-top: 0;
+    margin-bottom: 8px;
+    border-bottom: none;
+}
+.modal-content p {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: #666;
+}
+#contact-form {
+    text-align: left;
+}
+#contact-form .form-group {
+    margin-bottom: 18px;
+}
+#contact-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 0.9em;
+    color: #555;
+}
+#contact-form input,
+#contact-form select,
+#contact-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 1em;
+    font-family: var(--font-main);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+#contact-form input:focus,
+#contact-form select:focus,
+#contact-form textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
+}
+#contact-form button {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--color-accent);
+    color: var(--color-text-light);
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+#contact-form button:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-2px);
+}
+#contact-form button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
 
 /* ============================================== */
 /* 10. ESTILOS DE COMPONENTES GLOBALES (Spinner)  */

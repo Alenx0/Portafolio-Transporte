@@ -53,39 +53,104 @@
     </div>
 </section>
 
-<main>
-    <section id="sobre-nosotros">
+<section id="sobre-nosotros" style="background-image: url('{{ url_for('static', filename='img/sobre-nosotros.jpeg') }}');">
+    <div class="about-content-overlay">
         <h2>Sobre Nosotros</h2>
-        <div class="about-content">
-            <div class="about-text">
-                <p>En <strong>Transporte Unión Salazar</strong>, somos líderes en el transporte de carga por carretera a nivel nacional, con una sólida especialización en la industria minera. Nuestra trayectoria se caracteriza por la seriedad, responsabilidad y un compromiso inquebrantable con la eficiencia y la seguridad.</p>
-                <p>Contamos con una moderna flota de vehículos y un equipo de profesionales altamente capacitados, lo que nos permite garantizar la entrega oportuna y segura de cada carga, incluso en los entornos más desafiantes.</p>
+        <p>En <strong>Transporte Unión Salazar</strong>, somos líderes en el transporte de carga por carretera a nivel nacional, con una sólida especialización en la industria minera. Nuestra trayectoria se caracteriza por la seriedad, responsabilidad y un compromiso inquebrantable con la eficiencia y la seguridad.</p>
+        <a href="#servicios" class="about-cta-button">Ver Nuestros Servicios</a>
+    </div>
+</section>
+
+<section id="servicios">
+    <h2>Nuestros Servicios</h2>
+    <div class="services-grid">
+        <!-- Servicio 1 -->
+        <div class="service-item">
+            <div class="service-preview">
+                <i class="fas fa-truck-moving"></i>
+                <h3>Transporte de Carga General</h3>
+                <p class="service-summary">Movilizamos todo tipo de carga a nivel nacional, con puntualidad y seguridad.</p>
             </div>
-            <div class="about-image">
-                <img src="{{ url_for('static', filename='img/sobre-nosotros.jpeg') }}" alt="Camiones de Transporte Unión Salazar en operación">
+            <div class="service-details">
+                <button class="close-service">&times;</button>
+                <h3>Transporte de Carga General</h3>
+                <p>Ofrecemos soluciones logísticas integrales para el transporte de mercancías a lo largo de todo Chile. Nuestra flota moderna y versátil está equipada para manejar desde paquetería hasta cargas consolidadas, garantizando siempre la máxima seguridad y el cumplimiento de los plazos de entrega.</p>
             </div>
         </div>
-    </section>
-
-    <section id="servicios">
-        <h2>Nuestros Servicios</h2>
-        <div class="services-grid">
-            <div class="service-item"><i class="fas fa-truck-moving"></i><h3>Transporte de Carga General</h3><p>Movilizamos todo tipo de carga a nivel nacional, con puntualidad y seguridad.</p></div>
-            <div class="service-item"><i class="fas fa-hard-hat"></i><h3>Logística para la Minería</h3><p>Especialistas en transporte para faenas mineras, con altos estándares de seguridad.</p></div>
-            <div class="service-item"><i class="fas fa-box"></i><h3>Cargas Sobredimensionadas</h3><p>Expertos en el manejo y transporte de cargas con dimensiones o pesos especiales.</p></div>
+        <!-- Servicio 2 -->
+        <div class="service-item">
+            <div class="service-preview">
+                <i class="fas fa-hard-hat"></i>
+                <h3>Logística para la Minería</h3>
+                <p class="service-summary">Especialistas en transporte para faenas mineras, con altos estándares de seguridad.</p>
+            </div>
+            <div class="service-details">
+                <button class="close-service">&times;</button>
+                <h3>Logística para la Minería</h3>
+                <p>Contamos con amplia experiencia y certificaciones para operar en los exigentes entornos de la gran minería. Transportamos materiales, equipos y personal, cumpliendo con los más rigurosos protocolos de seguridad y medio ambiente que la industria requiere.</p>
+            </div>
         </div>
-    </section>
+        <!-- Servicio 3 -->
+        <div class="service-item">
+            <div class="service-preview">
+                <i class="fas fa-box-open"></i>
+                <h3>Cargas Sobredimensionadas</h3>
+                <p class="service-summary">Expertos en el manejo y transporte de cargas con dimensiones o pesos especiales.</p>
+            </div>
+            <div class="service-details">
+                <button class="close-service">&times;</button>
+                <h3>Cargas Sobredimensionadas</h3>
+                <p>Gestionamos el transporte de cargas que exceden las dimensiones y pesos estándar. Nuestro equipo de expertos se encarga de la planificación de rutas, la obtención de permisos y la coordinación de escoltas para asegurar un traslado exitoso y sin contratiempos.</p>
+            </div>
+        </div>
+        <!-- Servicio 4 -->
+        <div class="service-item">
+            <div class="service-preview">
+                <i class="fas fa-vial"></i>
+                <h3>Muestras de Laboratorio</h3>
+                <p class="service-summary">Transporte especializado y con temperatura controlada para muestras críticas.</p>
+            </div>
+            <div class="service-details">
+                <button class="close-service">&times;</button>
+                <h3>Muestras de Laboratorio</h3>
+                <p>Servicio especializado en el transporte de muestras geológicas, minerales y ambientales. Garantizamos la integridad de la cadena de custodia y, si es necesario, condiciones de temperatura controlada para asegurar la validez de los análisis de laboratorio.</p>
+            </div>
+        </div>
+        <!-- Servicio 5 -->
+        <div class="service-item">
+            <div class="service-preview">
+                <i class="fas fa-warehouse"></i>
+                <h3>Almacenamiento y Bodegaje</h3>
+                <p class="service-summary">Soluciones de bodegaje seguras y flexibles para complementar su logística.</p>
+            </div>
+            <div class="service-details">
+                <button class="close-service">&times;</button>
+                <h3>Almacenamiento y Bodegaje</h3>
+                <p>Disponemos de bodegas estratégicamente ubicadas para ofrecer servicios de almacenamiento de corto y largo plazo. Nuestras instalaciones son seguras y están equipadas para manejar una amplia variedad de mercancías, integrándose perfectamente con nuestros servicios de transporte.</p>
+            </div>
+        </div>
+        <!-- Servicio 6 -->
+        <div class="service-item">
+            <div class="service-preview">
+                <i class="fas fa-map-marked-alt"></i>
+                <h3>Distribución Última Milla</h3>
+                <p class="service-summary">Entregas eficientes y puntuales en el tramo final hacia su destino.</p>
+            </div>
+            <div class="service-details">
+                <button class="close-service">&times;</button>
+                <h3>Distribución Última Milla</h3>
+                <p>Optimizamos el tramo final de la cadena de suministro con nuestro servicio de distribución de última milla. Aseguramos que sus productos lleguen a su destino final, ya sea un centro de distribución, una tienda o un cliente particular, de manera rápida y eficiente.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <section id="compromiso-ambiental">
+<section id="compromiso-ambiental" style="background-image: url('{{ url_for('static', filename='img/ambiental.jpeg') }}');">
+    <div class="environmental-content-overlay">
         <h2>Compromiso Ambiental</h2>
-        <div class="environmental-content">
-            <div class="environmental-image">
-                <img src="{{ url_for('static', filename='img/ambiental.jpeg') }}" alt="Paisaje natural que representa el compromiso ambiental">
-            </div>
-            <div class="environmental-text">
-                <p>En Transporte Unión Salazar, entendemos la importancia de operar de manera sostenible y responsable con el medio ambiente. Estamos comprometidos con la reducción de nuestra huella de carbono a través de la optimización de rutas, mantenimiento preventivo y capacitación de nuestro personal.</p>
-            </div>
-        </div>
-    </section>
-</main>
+        <p>Entendemos la importancia de operar de manera sostenible. Estamos comprometidos con la reducción de nuestra huella de carbono a través de la optimización de rutas, el mantenimiento preventivo y la capacitación constante de nuestro personal.</p>
+        <a href="#site-footer" class="about-cta-button">Contacta con Nosotros</a>
+    </div>
+</section>
+
 {% endblock %}

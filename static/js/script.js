@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const globalSpinner = document.getElementById('global-spinner-overlay');
 
     // ===============================================
-    // ¡NUEVO! FUNCIONES PARA CONTROLAR EL SPINNER
+    // FUNCIONES PARA CONTROLAR EL SPINNER
     // ===============================================
     function showSpinner() {
         if (globalSpinner) {
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===============================================
-    // 4. LÓGICA DEL FORMULARIO DE CONTACTO (MODIFICADO)
+    // 4. LÓGICA DEL FORMULARIO DE CONTACTO
     // ===============================================
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formStatus.style.color = '#1e3a8a';
             formStatus.classList.remove('hidden');
             
-            showSpinner(); // <-- MOSTRAMOS EL SPINNER
+            showSpinner();
 
             emailjs.sendForm(config.emailJS.serviceID, config.emailJS.templateID, this)
                 .then(() => {
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .finally(() => {
                     submitButton.disabled = false;
-                    hideSpinner(); // <-- OCULTAMOS EL SPINNER (al final, funcione o no)
+                    hideSpinner();
                     setTimeout(() => formStatus.classList.add('hidden'), 4000);
                 });
         });
@@ -159,29 +159,60 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeModalButton = document.getElementById('close-modal-btn');
 
     if (modalOverlay && openModalButtons.length > 0 && closeModalButton) {
-        
         function openModal() {
             modalOverlay.classList.remove('hidden');
             document.body.classList.add('modal-open');
         }
-
         function closeModal() {
             modalOverlay.classList.add('hidden');
             document.body.classList.remove('modal-open');
         }
-
         openModalButtons.forEach(button => {
             button.addEventListener('click', function(event) {
                 event.preventDefault();
                 openModal();
             });
         });
-
         closeModalButton.addEventListener('click', closeModal);
-
         modalOverlay.addEventListener('click', function(event) {
             if (event.target === modalOverlay) {
                 closeModal();
+            }
+        });
+    }
+
+    // ===============================================
+    // 6. ¡NUEVO! LÓGICA PARA SERVICIOS INTERACTIVOS
+    // ===============================================
+    const servicesGrid = document.querySelector('.services-grid');
+    if (servicesGrid) {
+        const serviceItems = document.querySelectorAll('.service-item');
+
+        servicesGrid.addEventListener('click', function(event) {
+            const clickedItem = event.target.closest('.service-item');
+            const closeButton = event.target.closest('.close-service');
+
+            // Si se hace clic en el botón de cerrar
+            if (closeButton) {
+                event.stopPropagation(); // Evita que el clic se propague al item
+                const expandedItem = document.querySelector('.service-item.expanded');
+                if (expandedItem) {
+                    expandedItem.classList.remove('expanded');
+                    servicesGrid.classList.remove('expanded');
+                }
+                return;
+            }
+
+            // Si se hace clic en un item
+            if (clickedItem) {
+                // Si ya hay un item expandido, no hacer nada (se debe cerrar primero)
+                if (servicesGrid.classList.contains('expanded') && !clickedItem.classList.contains('expanded')) {
+                    return;
+                }
+
+                // Alternar la expansión del item clickeado
+                clickedItem.classList.toggle('expanded');
+                servicesGrid.classList.toggle('expanded');
             }
         });
     }
