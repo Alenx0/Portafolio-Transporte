@@ -1,7 +1,7 @@
 /*
  * ---------------------------------------------------
  * SCRIPT PARA LA PÁGINA DE USUARIOS (LOGIN Y DASHBOARD)
- * Versión 19.1 - Toggle de Contraseña Añadido
+ * Versión 20.1 - Completa con Gestión de Clientes y Contratos
  * ---------------------------------------------------
  */
 document.addEventListener('DOMContentLoaded', function() {
@@ -20,9 +20,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const showLoginLink = document.getElementById('show-login-link');
     const welcomeUsername = document.getElementById('welcome-username');
     const logoutButton = document.getElementById('logout-button');
+    const globalSpinner = document.getElementById('global-spinner-overlay');
+    
+    // Vistas principales
+    const adminView = document.getElementById('admin-view');
+    const conductorView = document.getElementById('conductor-view');
+
+    // Panel de Admin: Conductores
     const adminPanelContainer = document.getElementById('admin-panel-container');
     const adminDriverDetailsView = document.getElementById('admin-driver-details-view');
-    const conductorViewElements = document.querySelectorAll('.conductor-view');
+
+    // ***** INICIO: NUEVOS SELECTORES PARA CONTRATOS *****
+    const createClientForm = document.getElementById('create-client-form');
+    const createContractForm = document.getElementById('create-contract-form');
+    const clientMessage = document.getElementById('client-message');
+    const contractMessage = document.getElementById('contract-message');
+    const contractClientSelect = document.getElementById('contract-client-select');
+    const contractRevenueInput = document.getElementById('contract-revenue');
+    // ***** FIN: NUEVOS SELECTORES PARA CONTRATOS *****
+    
+    // Panel de Conductor
     const allTabs = document.querySelectorAll('.tab-link');
     const expenseAmountInput = document.getElementById('expense-amount');
     const initialAmountInput = document.getElementById('initial-amount');
@@ -31,11 +48,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const displayShiftType = document.getElementById('display-shift-type');
     const displayShiftStartDate = document.getElementById('display-shift-start-date');
     const changeShiftBtn = document.getElementById('change-shift-btn');
+    
+    // Modal de Edición
     const editDriverModal = document.getElementById('edit-driver-modal');
     const editDriverForm = document.getElementById('edit-driver-form');
     const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
     const editDriverMessage = document.getElementById('edit-driver-message');
-    const globalSpinner = document.getElementById('global-spinner-overlay');
 
     // Estado global
     let currentUser = null;
@@ -105,21 +123,21 @@ document.addEventListener('DOMContentLoaded', function() {
         editDriverForm.reset();
         editDriverMessage.classList.add('hidden');
     }
-
+    
     function renderDriverList(conductores) {
         if (!adminPanelContainer) return;
-        adminPanelContainer.innerHTML = `<h3>Panel de Administración</h3><h4>Conductores Registrados</h4>` +
-            ((!conductores || conductores.length === 0) ?
-                '<p>No hay conductores registrados.</p>' :
-                `<ul class="driver-list">${conductores.map(c => {
+        adminPanelContainer.innerHTML = `<h4>Conductores Registrados</h4>` + 
+            ((!conductores || conductores.length === 0) 
+            ? '<p>No hay conductores registrados.</p>' 
+            : `<ul class="driver-list">${conductores.map(c => {
                 const conductorData = JSON.stringify(c);
                 return `<li class="driver-item" data-conductor='${conductorData}'>
-                        <span>${c.username}</span>
-                        <div class="actions">
-                            <button class="view-btn action-btn">Ver</button>
-                            <button class="edit-btn action-btn">Editar</button>
-                        </div>
-                    </li>`;
+                            <span>${c.username}</span>
+                            <div class="actions">
+                                <button class="view-btn action-btn">Ver</button>
+                                <button class="edit-btn action-btn">Editar</button>
+                            </div>
+                        </li>`;
             }).join('')}</ul>`);
     }
 
@@ -137,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (legend) legend.style.display = 'none';
             return;
         }
-
+        
         if (legend) legend.style.display = 'flex';
         const year = displayDate.getFullYear();
         const month = displayDate.getMonth();
@@ -170,39 +188,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         monthGridContainer.appendChild(monthGrid);
     }
-    
-    function renderExpenseUI(container, period, expenses) {
-        if (!container || !period || period.status !== 'activo') {
-            if (container) container.classList.add('hidden');
-            return;
-        }
-        container.classList.remove('hidden');
 
-        if (container.id === 'active-period-container') {
-            activePeriod = period;
-        }
-
-        const format = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(n);
-        
-        container.querySelector('.summary-patente').textContent = period.patente;
-        container.querySelector('.summary-trip').textContent = `${period.trip_origin} - ${period.trip_destination}`;
-        container.querySelector('.summary-initial').textContent = format(period.initial_amount);
-
+    function renderExpenseUI(period, expenses) {
+        const startContainer = document.getElementById('start-period-container');
+        const activeContainer = document.getElementById('active-period-container');
+        const tableBody = document.getElementById('expenses-table')?.querySelector('tbody');
+        activePeriod = (period && period.status === 'activo') ? period : null;
+        startContainer.classList.toggle('hidden', !!activePeriod);
+        activeContainer.classList.toggle('hidden', !activePeriod);
+        if (!activePeriod) return;
+        const format = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n);
+        document.getElementById('summary-patente').textContent = activePeriod.patente;
+        document.getElementById('summary-trip').textContent = `${activePeriod.trip_origin} - ${activePeriod.trip_destination}`;
+        document.getElementById('summary-initial').textContent = format(activePeriod.initial_amount);
         const totalSpent = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
-        const balance = parseFloat(period.initial_amount) - totalSpent;
-
-        container.querySelector('.summary-spent').textContent = format(totalSpent);
-        container.querySelector('.summary-balance').textContent = format(balance);
-
-        const tableBody = container.querySelector('#expenses-table tbody, #admin-expenses-table tbody');
+        const balance = parseFloat(activePeriod.initial_amount) - totalSpent;
+        document.getElementById('summary-spent').textContent = format(totalSpent);
+        document.getElementById('summary-balance').textContent = format(balance);
         if (tableBody) {
             tableBody.innerHTML = '';
             expenses.forEach(exp => {
                 const row = tableBody.insertRow();
-                const actionsCell = container.id === 'active-period-container' 
-                    ? `<td><button class="delete-btn" data-id="${exp.id}" title="Eliminar este gasto"><i class="fas fa-trash-alt"></i></button></td>`
-                    : '';
-                row.innerHTML = `<td>${exp.date}</td><td>${exp.category}</td><td>${exp.notes || ''}</td><td>${format(exp.amount)}</td>${actionsCell}`;
+                row.innerHTML = `<td>${exp.date}</td><td>${exp.category}</td><td>${exp.notes || ''}</td><td>${format(exp.amount)}</td><td><button class="delete-btn" data-id="${exp.id}" title="Eliminar este gasto"><i class="fas fa-trash-alt"></i></button></td>`;
             });
         }
     }
@@ -210,10 +217,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderHistoryList(historyData, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
-        container.innerHTML = (!historyData || historyData.length === 0) ?
-            '<p>No hay viajes cerrados para mostrar.</p>' :
-            historyData.map((period, index) => {
-                const format = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(n);
+        container.innerHTML = (!historyData || historyData.length === 0) 
+            ? '<p>No hay viajes cerrados para mostrar.</p>' 
+            : historyData.map((period, index) => {
+                const format = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n);
                 const totalSpent = period.expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
                 const balance = parseFloat(period.initial_amount) - totalSpent;
                 const detailsId = `${containerId}-details-${index}`;
@@ -222,7 +229,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 return `<div class="history-item"><div class="history-summary" data-target="${detailsId}"><strong>Fecha:</strong> ${period.start_date} | <strong>Viaje:</strong> ${period.trip_origin} a ${period.trip_destination} | <strong>Saldo Final:</strong> <span class="saldo">${format(balance)}</span></div>${detailsTable}</div>`;
             }).join('');
     }
-
+    
+    function renderAdminExpenseDetails(activePeriodData, historyData) {
+        const noPeriodContainer = document.getElementById('admin-no-period-container');
+        const activeContainer = document.getElementById('admin-active-period-container');
+        noPeriodContainer.classList.toggle('hidden', !!activePeriodData);
+        activeContainer.classList.toggle('hidden', !activePeriodData);
+        if (activePeriodData) {
+            const format = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n);
+            const expenses = activePeriodData.expenses || [];
+            document.getElementById('admin-summary-patente').textContent = activePeriodData.patente;
+            document.getElementById('admin-summary-trip').textContent = `${activePeriodData.trip_origin} - ${activePeriodData.trip_destination}`;
+            document.getElementById('admin-summary-initial').textContent = format(activePeriodData.initial_amount);
+            const totalSpent = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+            const balance = parseFloat(activePeriodData.initial_amount) - totalSpent;
+            document.getElementById('admin-summary-spent').textContent = format(totalSpent);
+            document.getElementById('admin-summary-balance').textContent = format(balance);
+            const tableBody = document.getElementById('admin-expenses-table')?.querySelector('tbody');
+            if (tableBody) {
+                tableBody.innerHTML = expenses.map(exp => `<tr><td>${exp.date}</td><td>${exp.category}</td><td>${exp.notes || ''}</td><td>${format(exp.amount)}</td></tr>`).join('');
+            }
+        }
+        renderHistoryList(historyData, 'admin-history-list-container');
+    }
+    
     function renderShiftConfigUI() {
         if (!currentUser || !shiftDisplayView || !shiftConfigForm) return;
         const hasShift = currentUser.shift_type && currentUser.shift_start_date;
@@ -234,44 +264,65 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function setupDashboardForRole(user) {
-        const isAdmin = user.role === 'admin';
-        conductorViewElements.forEach(el => el.classList.toggle('hidden', isAdmin));
-        adminPanelContainer.classList.toggle('hidden', !isAdmin);
-        adminDriverDetailsView.classList.add('hidden');
-        if (!isAdmin) {
-            const firstTab = document.querySelector('.conductor-view .tab-link[data-tab="calendar-tab"]');
-            if (firstTab) firstTab.click();
-        }
-    }
-
     async function refreshExpenseAndHistoryData() {
         const [expenseData, historyData] = await Promise.all([
             apiCall(`/api/expense_data?username=${currentUser.username}`, 'GET').catch(() => ({})),
             apiCall(`/api/work_periods/history?username=${currentUser.username}`, 'GET').catch(() => ({}))
         ]);
+        if (expenseData.success) renderExpenseUI(expenseData.active_period, expenseData.expenses);
+        if (historyData.success) renderHistoryList(historyData.history, 'history-list-container');
+    }
 
-        if (expenseData.success) {
-            const startContainer = document.getElementById('start-period-container');
-            const activeContainer = document.getElementById('active-period-container');
-            const hasActivePeriod = expenseData.active_period && expenseData.active_period.status === 'activo';
-            startContainer.classList.toggle('hidden', hasActivePeriod);
-            activeContainer.classList.toggle('hidden', !hasActivePeriod);
-            renderExpenseUI(activeContainer, expenseData.active_period, expenseData.expenses || []);
+    // ***** INICIO: NUEVA FUNCIÓN PARA RENDERIZAR CLIENTES *****
+    function renderClientDropdown(clients) {
+        if (!contractClientSelect) return;
+        contractClientSelect.innerHTML = '<option value="">-- Selecciona un Cliente --</option>';
+        if (clients && clients.length > 0) {
+            clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client.id;
+                option.textContent = client.name;
+                contractClientSelect.appendChild(option);
+            });
+        } else {
+            contractClientSelect.innerHTML = '<option value="">No hay clientes creados</option>';
         }
+    }
+    // ***** FIN: NUEVA FUNCIÓN PARA RENDERIZAR CLIENTES *****
 
-        if (historyData.success) {
-            renderHistoryList(historyData.history, 'history-list-container');
+    function setupDashboardForRole(user) {
+        const isAdmin = user.role === 'admin';
+        conductorView.classList.toggle('hidden', isAdmin);
+        adminView.classList.toggle('hidden', !isAdmin);
+        
+        if (isAdmin) {
+            const firstTab = adminView.querySelector('.tab-link');
+            if (firstTab) firstTab.click();
+        } else {
+             const firstTab = conductorView.querySelector('.tab-link');
+            if (firstTab) firstTab.click();
         }
     }
 
     async function loadDashboardData() {
         welcomeUsername.textContent = currentUser.username;
         setupDashboardForRole(currentUser);
+
         if (currentUser.role === 'admin') {
-            const data = await apiCall('/api/admin/conductores', 'GET');
-            if (data.success) renderDriverList(data.conductores);
+            // Carga en paralelo los conductores y los clientes
+            const [conductoresData, clientsData] = await Promise.all([
+                apiCall('/api/admin/conductores', 'GET').catch(e => console.error("Error cargando conductores", e)),
+                apiCall('/api/admin/clients', 'GET').catch(e => console.error("Error cargando clientes", e))
+            ]);
+            
+            if (conductoresData && conductoresData.success) {
+                renderDriverList(conductoresData.conductores);
+            }
+            if (clientsData && clientsData.success) {
+                renderClientDropdown(clientsData.clients);
+            }
         } else {
+            // Lógica existente para el conductor
             renderShiftConfigUI();
             const scheduleData = await apiCall(`/api/user/shift?username=${currentUser.username}`, 'GET').catch(() => ({}));
             userSchedule = scheduleData.success ? scheduleData.schedule : [];
@@ -279,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
             await refreshExpenseAndHistoryData();
         }
     }
-
+    
     // ===============================================
     // 4. LÓGICA PRINCIPAL Y EVENT LISTENERS
     // ===============================================
@@ -296,10 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loginForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
-                const username = loginForm.username.value.toLowerCase();
-                const password = loginForm.password.value;
-                const data = await apiCall('/api/login', 'POST', { username: username, password: password });
-                
+                const data = await apiCall('/api/login', 'POST', { username: loginForm.username.value, password: loginForm.password.value });
                 currentUser = data.user;
                 localStorage.setItem('loggedInUser', JSON.stringify(currentUser));
                 showSection('dashboard');
@@ -308,14 +356,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 showMessage(loginMessage, error.message || 'Error al conectar.', false);
             }
         });
-
+        
         registerForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
-                const username = registerForm.username.value.toLowerCase();
-                const password = registerForm.password.value;
-                const data = await apiCall('/api/register', 'POST', { username: username, password: password });
-
+                const data = await apiCall('/api/register', 'POST', { username: registerForm.username.value, password: registerForm.password.value });
                 showMessage(registerMessage, data.message, true);
                 setTimeout(() => showSection('login'), 2000);
             } catch (error) {
@@ -346,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById(targetId)?.classList.add('active');
             });
         });
-
+        
         document.addEventListener('click', async (e) => {
             const target = e.target;
             const historySummary = target.closest('.history-summary');
@@ -358,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            if (adminPanelContainer && !adminPanelContainer.classList.contains('hidden')) {
+            if (adminView && !adminView.classList.contains('hidden')) {
                 const viewButton = target.closest('.view-btn');
                 if (viewButton) {
                     const driverItem = viewButton.closest('.driver-item');
@@ -370,24 +415,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             adminDriverDetailsView.classList.remove('hidden');
                             document.getElementById('details-driver-name').innerHTML = `Detalles de: ${data.conductor.username}<div style="font-size: 0.8em; color: #555; margin-top: 5px;">RUT: ${data.conductor.rut || 'No asignado'} | Teléfono: ${data.conductor.phone || 'No asignado'}</div>`;
                             adminSchedule = data.schedule;
-
-                            const adminActiveContainer = document.getElementById('admin-active-period-container');
-                            const adminNoPeriodContainer = document.getElementById('admin-no-period-container');
-                            const hasActivePeriod = data.active_period && data.active_period.status === 'activo';
-                            
-                            adminActiveContainer.classList.toggle('hidden', !hasActivePeriod);
-                            adminNoPeriodContainer.classList.toggle('hidden', hasActivePeriod);
-
-                            renderExpenseUI(adminActiveContainer, data.active_period, data.active_period?.expenses || []);
-                            renderHistoryList(data.history, 'admin-history-list-container');
+                            renderAdminExpenseDetails(data.active_period, data.history);
                             renderCalendar(adminSchedule, adminCalendarDate, 'admin-calendar-container');
-                            
                             const firstAdminTab = adminDriverDetailsView.querySelector('.tab-link');
                             if (firstAdminTab) firstAdminTab.click();
                         }
                     } catch (error) {
-                        console.error("Error detallado al cargar datos del conductor:", error);
-                        alert('Hubo un error al cargar los datos. Revisa la consola (F12) para ver los detalles técnicos.');
+                        alert('No se pudieron cargar los detalles del conductor.');
                     }
                 }
                 const editButton = target.closest('.edit-btn');
@@ -398,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            if (!dashboardSection.classList.contains('hidden')) {
+            if (conductorView && !conductorView.classList.contains('hidden')) {
                 const deleteButton = target.closest('.delete-btn');
                 if (deleteButton && activePeriod) {
                     if (confirm('¿Estás seguro de que quieres eliminar este gasto?')) {
@@ -416,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-
+        
         editDriverForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = editDriverForm.querySelector('#edit-username').value;
@@ -438,13 +472,13 @@ document.addEventListener('DOMContentLoaded', function() {
         editDriverModal?.addEventListener('click', (e) => {
             if (e.target === editDriverModal) closeEditModal();
         });
-
+        
         document.getElementById('back-to-list-btn')?.addEventListener('click', () => {
             adminPanelContainer.classList.remove('hidden');
             adminDriverDetailsView.classList.add('hidden');
         });
-
-        document.getElementById('start-period-form')?.addEventListener('submit', async (e) => {
+        
+        document.getElementById('start-period-form')?.addEventListener('submit', async(e) => {
             e.preventDefault();
             const form = e.target;
             const unformattedAmount = form['initial-amount'].value.replace(/\./g, '');
@@ -453,7 +487,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 await apiCall('/api/work_periods', 'POST', periodData);
                 await refreshExpenseAndHistoryData();
                 form.reset();
-            } catch (error) {
+            } catch(error) {
                 alert(error.message || 'Error al iniciar el período.');
             }
         });
@@ -468,11 +502,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 await apiCall('/api/expenses', 'POST', expenseData);
                 await refreshExpenseAndHistoryData();
                 form.reset();
-            } catch (error) {
+            } catch(error) {
                 alert(error.message || 'Error al añadir el gasto.');
             }
         });
-
+        
         expenseAmountInput?.addEventListener('input', (e) => {
             let value = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
             e.target.value = value ? new Intl.NumberFormat('es-CL').format(value) : '';
@@ -482,19 +516,19 @@ document.addEventListener('DOMContentLoaded', function() {
             let value = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
             e.target.value = value ? new Intl.NumberFormat('es-CL').format(value) : '';
         });
-
+        
         changeShiftBtn?.addEventListener('click', () => {
             shiftDisplayView.classList.add('hidden');
             shiftConfigForm.classList.remove('hidden');
         });
 
-        shiftConfigForm?.addEventListener('submit', async (e) => {
+        shiftConfigForm?.addEventListener('submit', async(e) => {
             e.preventDefault();
             const form = e.target;
-            const shiftData = {
-                username: currentUser.username,
-                shift_type: form.querySelector('#shift-type-select').value,
-                shift_start_date: form.querySelector('#shift-start-date-input').value
+            const shiftData = { 
+                username: currentUser.username, 
+                shift_type: form.querySelector('#shift-type-select').value, 
+                shift_start_date: form.querySelector('#shift-start-date-input').value 
             };
             try {
                 const data = await apiCall('/api/user/shift', 'POST', shiftData);
@@ -527,19 +561,70 @@ document.addEventListener('DOMContentLoaded', function() {
             renderCalendar(adminSchedule, adminCalendarDate, 'admin-calendar-container');
         });
 
-        // ***** INICIO: LÓGICA PARA EL OJO DE LA CONTRASEÑA *****
         document.querySelectorAll('.toggle-password').forEach(toggle => {
             toggle.addEventListener('click', function() {
                 const passwordField = this.previousElementSibling;
                 const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordField.setAttribute('type', type);
-                
-                // Cambia el ícono
                 this.classList.toggle('fa-eye');
                 this.classList.toggle('fa-eye-slash');
             });
         });
-        // ***** FIN: LÓGICA PARA EL OJO DE LA CONTRASEÑA *****
+
+        // ***** INICIO: NUEVOS EVENT LISTENERS PARA CONTRATOS *****
+        createClientForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const clientData = {
+                name: createClientForm.querySelector('#client-name').value,
+                contact_person: createClientForm.querySelector('#client-contact-person').value,
+                contact_email: createClientForm.querySelector('#client-contact-email').value
+            };
+
+            try {
+                const response = await apiCall('/api/admin/clients', 'POST', clientData);
+                showMessage(clientMessage, response.message, true);
+                createClientForm.reset();
+                
+                // Refrescamos la lista de clientes en el otro formulario
+                const clientsData = await apiCall('/api/admin/clients', 'GET');
+                if (clientsData.success) {
+                    renderClientDropdown(clientsData.clients);
+                }
+            } catch (error) {
+                showMessage(clientMessage, error.message || 'Error al crear el cliente.', false);
+            }
+        });
+
+        createContractForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const unformattedAmount = contractRevenueInput.value.replace(/\./g, '').replace(/,/g, '');
+            const contractData = {
+                client_id: contractClientSelect.value,
+                name: createContractForm.querySelector('#contract-name').value,
+                total_revenue: unformattedAmount,
+                start_date: createContractForm.querySelector('#contract-start-date').value,
+                end_date: createContractForm.querySelector('#contract-end-date').value || null
+            };
+
+            if (!contractData.client_id || !contractData.name || !contractData.total_revenue || !contractData.start_date) {
+                showMessage(contractMessage, "Por favor, completa todos los campos obligatorios.", false);
+                return;
+            }
+
+            try {
+                const response = await apiCall('/api/admin/contracts', 'POST', contractData);
+                showMessage(contractMessage, response.message, true);
+                createContractForm.reset();
+            } catch (error) {
+                showMessage(contractMessage, error.message || 'Error al crear el contrato.', false);
+            }
+        });
+        
+        contractRevenueInput?.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/[.,]/g, '').replace(/[^0-9]/g, '');
+            e.target.value = value ? new Intl.NumberFormat('es-CL').format(value) : '';
+        });
+        // ***** FIN: NUEVOS EVENT LISTENERS PARA CONTRATOS *****
     }
 
     init();

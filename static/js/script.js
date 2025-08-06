@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
             templateID: 'template_h2b0ayq'
         },
         carousel: {
-            autoplayDelay: 5000
+            autoplayDelay: 15000 
         }
     };
 
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===============================================
-    // 2. LÓGICA DEL CARRUSEL
+    // 2. LÓGICA DEL CARRUSEL (CON CARGA PEREZOSA)
     // ===============================================
     const carouselContainer = document.querySelector('.carousel-container');
     if (carouselContainer) {
@@ -74,15 +74,27 @@ document.addEventListener('DOMContentLoaded', function() {
         let currentIndex = 0;
         let slideInterval;
         let dots = [];
+
         function showSlide(index) {
-            carouselSlides.forEach(slide => slide.classList.remove('active'));
-            dots.forEach(dot => dot.classList.remove('active'));
             if (index >= carouselSlides.length) { currentIndex = 0; } 
             else if (index < 0) { currentIndex = carouselSlides.length - 1; } 
             else { currentIndex = index; }
-            carouselSlides[currentIndex].classList.add('active');
+
+            const nextSlideElement = carouselSlides[currentIndex];
+
+            const imageToLoad = nextSlideElement.getAttribute('data-bg');
+            if (imageToLoad) {
+                nextSlideElement.style.backgroundImage = imageToLoad;
+                nextSlideElement.removeAttribute('data-bg');
+            }
+
+            carouselSlides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            nextSlideElement.classList.add('active');
             if (dots[currentIndex]) { dots[currentIndex].classList.add('active'); }
         }
+
         function createDots() {
             carouselSlides.forEach((_, index) => {
                 const dot = document.createElement('span');
@@ -182,19 +194,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===============================================
-    // 6. ¡NUEVO! LÓGICA PARA SERVICIOS INTERACTIVOS
+    // 6. LÓGICA PARA SERVICIOS INTERACTIVOS
     // ===============================================
     const servicesGrid = document.querySelector('.services-grid');
     if (servicesGrid) {
-        const serviceItems = document.querySelectorAll('.service-item');
-
         servicesGrid.addEventListener('click', function(event) {
             const clickedItem = event.target.closest('.service-item');
             const closeButton = event.target.closest('.close-service');
 
-            // Si se hace clic en el botón de cerrar
             if (closeButton) {
-                event.stopPropagation(); // Evita que el clic se propague al item
+                event.stopPropagation();
                 const expandedItem = document.querySelector('.service-item.expanded');
                 if (expandedItem) {
                     expandedItem.classList.remove('expanded');
@@ -203,16 +212,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Si se hace clic en un item
             if (clickedItem) {
-                // Si ya hay un item expandido, no hacer nada (se debe cerrar primero)
-                if (servicesGrid.classList.contains('expanded') && !clickedItem.classList.contains('expanded')) {
-                    return;
+                const isAlreadyExpanded = clickedItem.classList.contains('expanded');
+                
+                servicesGrid.querySelectorAll('.service-item').forEach(item => item.classList.remove('expanded'));
+                
+                if (!isAlreadyExpanded) {
+                    clickedItem.classList.add('expanded');
+                    servicesGrid.classList.add('expanded');
+                    
+                    setTimeout(() => {
+                        document.getElementById('servicios').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 300);
+                } else {
+                    servicesGrid.classList.remove('expanded');
                 }
-
-                // Alternar la expansión del item clickeado
-                clickedItem.classList.toggle('expanded');
-                servicesGrid.classList.toggle('expanded');
             }
         });
     }

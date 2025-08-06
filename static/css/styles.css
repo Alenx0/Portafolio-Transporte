@@ -1,7 +1,7 @@
 /*
  * ---------------------------------------------------
  * TRANSPORTE UNIÓN SALAZAR - ESTILOS CSS PRINCIPALES
- * Versión 8.0 - Ajuste de Foco en Imagen de Fondo
+ * Versión 8.6 - correccion de scroll en servicios
  * ---------------------------------------------------
  * Contenido:
  * 0. Panel de Control de Diseño (Variables CSS)
@@ -17,7 +17,6 @@
  * 10. Estilos de Componentes Globales (Spinner)
  * ---------------------------------------------------
  */
-
 /* ============================================== */
 /* 0. PANEL DE CONTROL DE DISEÑO (VARIABLES CSS)  */
 /* ============================================== */
@@ -29,7 +28,7 @@
     --color-text-base: #333;
     --color-background: #f8f8f8;
     --color-surface: #ffffff;
-    --color-border: #e5e7eb; /* Borde más sutil */
+    --color-border: #e5e7eb;
     --color-whatsapp: #25d366;
     --color-whatsapp-hover: #128c7e;
     --color-text-light: #ffffff;
@@ -64,7 +63,15 @@ body {
     margin: 0;
     padding: 0;
     line-height: 1.6;
+    padding-top: var(--header-height-mobile);
 }
+
+@media (min-width: 992px) {
+    body {
+        padding-top: var(--header-height-desktop);
+    }
+}
+
 body.modal-open {
     overflow: hidden;
 }
@@ -285,7 +292,7 @@ nav li a:hover {
     padding: 0;
     position: relative;
     background-size: cover;
-    background-position: center bottom; /* <-- CAMBIO AQUÍ */
+    background-position: center bottom;
     background-attachment: fixed;
     color: var(--color-text-light);
     text-align: center;
@@ -398,6 +405,12 @@ nav li a:hover {
     opacity: 1;
     transform: translateY(0);
 }
+.services-grid.expanded {
+    /* ***** CAMBIO IMPORTANTE AQUÍ ***** */
+    /* Le damos una altura mínima al contenedor para evitar que la página salte */
+    min-height: 350px;
+    align-content: start;
+}
 .services-grid.expanded .service-item:not(.expanded) {
     opacity: 0.2;
     pointer-events: none;
@@ -414,6 +427,7 @@ nav li a:hover {
     cursor: pointer;
     line-height: 1;
     transition: color 0.2s ease;
+    z-index: 10;
 }
 .close-service:hover {
     color: var(--color-text-base);
@@ -426,7 +440,6 @@ nav li a:hover {
     padding: 0;
     margin: 0;
     width: 100%;
-    margin-top: var(--header-height-mobile); 
     height: calc(100vh - var(--header-height-mobile));
     background-color: var(--color-background);
     max-width: none;
@@ -434,7 +447,6 @@ nav li a:hover {
 }
 @media (min-width: 992px) {
     #hero {
-        margin-top: var(--header-height-desktop);
         height: calc(100vh - var(--header-height-desktop));
     }
 }
@@ -494,6 +506,12 @@ nav li a:hover {
 .carousel-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 12px; }
 .carousel-dots .dot { width: 12px; height: 12px; background-color: rgba(255, 255, 255, 0.6); border-radius: 50%; cursor: pointer; transition: background-color 0.3s ease; }
 .carousel-dots .dot.active { background-color: var(--color-accent); }
+
+@media (min-width: 992px) {
+    .carousel-slide.bg-pos-bottom {
+        background-position: center 75%;
+    }
+}
 
 /* ============================================== */
 /* 6. ESTILOS DEL BOTÓN FLOTANTE (CTA)            */
