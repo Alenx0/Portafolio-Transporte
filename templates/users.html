@@ -52,14 +52,20 @@
             <button id="logout-button">Cerrar Sesión</button>
         </div>
         
+        <!-- ================================== -->
+        <!-- INICIO: VISTA DE ADMINISTRADOR     -->
+        <!-- ================================== -->
         <div id="admin-view" class="hidden">
             <div class="tabs">
                 <button class="tab-link active" data-tab="admin-conductores-tab">Conductores</button>
-                <button class="tab-link" data-tab="admin-contratos-tab">Contratos</button> </div>
+                <button class="tab-link" data-tab="admin-contratos-tab">Contratos</button>
+            </div>
 
+            <!-- Pestaña de Conductores -->
             <div id="admin-conductores-tab" class="tab-content active">
                 <div id="admin-panel-container">
-                    </div>
+                    <!-- La lista de conductores se renderiza aquí por JS -->
+                </div>
                 <div id="admin-driver-details-view" class="hidden">
                     <button id="back-to-list-btn">&larr; Volver a la Lista</button>
                     <h3 id="details-driver-name"></h3>
@@ -78,61 +84,112 @@
                 </div>
             </div>
 
+            <!-- Pestaña de Contratos -->
             <div id="admin-contratos-tab" class="tab-content">
-                <h3>Gestión de Contratos de Servicio</h3>
-                <div class="management-grid">
-                    <div class="management-column">
-                        <h4><i class="fas fa-user-tie"></i> Crear Nuevo Cliente</h4>
-                        <form id="create-client-form">
-                            <div class="form-group">
-                                <label for="client-name">Nombre del Cliente:</label>
-                                <input type="text" id="client-name" name="client-name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="client-contact-person">Persona de Contacto (Opcional):</label>
-                                <input type="text" id="client-contact-person" name="client-contact-person">
-                            </div>
-                            <div class="form-group">
-                                <label for="client-contact-email">Email de Contacto (Opcional):</label>
-                                <input type="email" id="client-contact-email" name="client-contact-email">
-                            </div>
-                            <button type="submit">Guardar Cliente</button>
-                            <p id="client-message" class="form-message hidden"></p>
-                        </form>
-                    </div>
+                <!-- Vista principal con formularios y lista -->
+                <div id="contracts-main-view">
+                    <h3>Gestión de Contratos de Servicio</h3>
+                    <div class="management-grid">
+                        <div class="management-column">
+                            <h4><i class="fas fa-user-tie"></i> Crear Nuevo Cliente</h4>
+                            <form id="create-client-form">
+                                <div class="form-group">
+                                    <label for="client-name">Nombre del Cliente:</label>
+                                    <input type="text" id="client-name" name="client-name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="client-contact-person">Persona de Contacto (Opcional):</label>
+                                    <input type="text" id="client-contact-person" name="client-contact-person">
+                                </div>
+                                <div class="form-group">
+                                    <label for="client-contact-email">Email de Contacto (Opcional):</label>
+                                    <input type="email" id="client-contact-email" name="client-contact-email">
+                                </div>
+                                <button type="submit">Guardar Cliente</button>
+                                <p id="client-message" class="form-message hidden"></p>
+                            </form>
+                        </div>
 
-                    <div class="management-column">
-                        <h4><i class="fas fa-file-signature"></i> Crear Nuevo Contrato</h4>
-                        <form id="create-contract-form">
-                            <div class="form-group">
-                                <label for="contract-client-select">Asignar a Cliente:</label>
-                                <select id="contract-client-select" name="contract-client-select" required>
-                                    <option value="">Cargando clientes...</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="contract-name">Nombre o Descripción del Contrato:</label>
-                                <input type="text" id="contract-name" name="contract-name" required placeholder="Ej: CEA La Reina -> La Serena">
-                            </div>
-                            <div class="form-group">
-                                <label for="contract-revenue">Ingreso Total del Contrato ($):</label>
-                                <input type="text" inputmode="numeric" id="contract-revenue" name="contract-revenue" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="contract-start-date">Fecha de Inicio:</label>
-                                <input type="date" id="contract-start-date" name="contract-start-date" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="contract-end-date">Fecha de Término (Opcional):</label>
-                                <input type="date" id="contract-end-date" name="contract-end-date">
-                            </div>
-                            <button type="submit">Guardar Contrato</button>
-                            <p id="contract-message" class="form-message hidden"></p>
-                        </form>
+                        <div class="management-column">
+                            <h4><i class="fas fa-file-signature"></i> Crear Nuevo Contrato</h4>
+                            <form id="create-contract-form">
+                                <div class="form-group">
+                                    <label for="contract-client-select">Asignar a Cliente:</label>
+                                    <select id="contract-client-select" name="contract-client-select" required>
+                                        <option value="">Cargando clientes...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contract-name">Nombre o Descripción del Contrato:</label>
+                                    <input type="text" id="contract-name" name="contract-name" required placeholder="Ej: CEA La Reina -> La Serena">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contract-revenue">Ingreso Total del Contrato ($):</label>
+                                    <input type="text" inputmode="numeric" id="contract-revenue" name="contract-revenue" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contract-start-date">Fecha de Inicio:</label>
+                                    <input type="date" id="contract-start-date" name="contract-start-date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contract-end-date">Fecha de Término (Opcional):</label>
+                                    <input type="date" id="contract-end-date" name="contract-end-date">
+                                </div>
+                                <button type="submit">Guardar Contrato</button>
+                                <p id="contract-message" class="form-message hidden"></p>
+                            </form>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="list-section">
+                        <h4><i class="fas fa-list-ul"></i> Contratos Registrados</h4>
+                        <div id="contracts-list-container">
+                            <!-- La lista de contratos se renderizará aquí por JS -->
+                        </div>
                     </div>
                 </div>
+
+                <!-- ***** INICIO: PANEL DE DETALLES DE CONTRATO REDISEÑADO ***** -->
+                <div id="admin-contract-details-view" class="hidden">
+                    <button id="back-to-contracts-list-btn" class="action-btn back-btn">&larr; Volver a la Lista de Contratos</button>
+                    <h3 id="details-contract-name"></h3>
+                    
+                    <h4>Análisis de Rentabilidad Mensual</h4>
+                    <div id="monthly-breakdown-container">
+                        <!-- La tabla con el desglose mensual se renderizará aquí -->
+                    </div>
+
+                    <hr>
+                    <h4>Totales del Contrato</h4>
+                    <div class="kpi-grid">
+                        <div class="kpi-card revenue">
+                            <span class="kpi-title">Ingresos Totales</span>
+                            <span class="kpi-value" id="grand-total-revenue"></span>
+                        </div>
+                        <div class="kpi-card expenses">
+                            <span class="kpi-title">Gastos de Conductor</span>
+                            <span class="kpi-value" id="grand-total-expenses"></span>
+                        </div>
+                        <div class="kpi-card profit">
+                            <span class="kpi-title">Ganancia Neta Total</span>
+                            <span class="kpi-value" id="grand-total-profit"></span>
+                        </div>
+                        <div class="kpi-card margin">
+                            <span class="kpi-title">Margen Total (%)</span>
+                            <span class="kpi-value" id="grand-total-margin"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- ***** FIN: PANEL DE DETALLES DE CONTRATO REDISEÑADO ***** -->
             </div>
-            </div>
+        </div>
+        <!-- ================================== -->
+        <!-- FIN: VISTA DE ADMINISTRADOR        -->
+        <!-- ================================== -->
+
+        <!-- ================================== -->
+        <!-- INICIO: VISTA DE CONDUCTOR         -->
+        <!-- ================================== -->
         <div id="conductor-view" class="hidden">
             <div class="tabs">
                 <button class="tab-link active" data-tab="calendar-tab">Calendario de Turnos</button>
@@ -180,6 +237,15 @@
                             <div class="form-group"><label for="trip-origin">Origen del Viaje:</label><input type="text" id="trip-origin" name="trip-origin" required></div>
                             <div class="form-group"><label for="trip-destination">Destino del Viaje:</label><input type="text" id="trip-destination" name="trip-destination" required></div>
                             <div class="form-group full-width"><label for="initial-amount">Monto Inicial Entregado ($):</label><input type="text" inputmode="numeric" id="initial-amount" name="initial-amount" required></div>
+                            
+                            <div class="form-group full-width">
+                                <label for="period-contract-select">Asociar a Contrato (Opcional):</label>
+                                <select id="period-contract-select" name="period-contract-select">
+                                    <option value="">-- Ninguno --</option>
+                                    <!-- La lista de contratos activos se cargará aquí por JS -->
+                                </select>
+                            </div>
+
                         </div>
                         <button type="submit">Comenzar Período</button>
                     </form>
@@ -201,7 +267,7 @@
                     <h4>Añadir Nuevo Gasto</h4>
                     <form id="add-expense-form">
                         <div class="form-grid expense-grid">
-                            <div class="form-group"><label for="expense-category">Categoría:</label><select id="expense-category" name="expense-category" required><option value="Peajes">Peajes</option><option value="Viáticos">Viáticos</option><option value="Combustible">Combustible</option><option value="Estacionamiento">Estacionamiento</option><option value="Alojamiento">Alojamiento</option><option value="Vulcanización">Vulcanización</option><option value="BlueMax">BlueMax</option><option value="Supermercado">Supermercado</option><option value="Otros">Otros</option></select></div>
+                            <div class="form-group"><label for="expense-category">Categoría:</label><select id="expense-category" name="expense-category" required><option value="Peajes">Peajes</option><option value="Viáticos">Viáticos</option><option value="Combustible">Combustible</option><option value="Estacionamiento">Estacionamiento</option><option value="Alojamiento">Alojamiento</option><option value="Vulcanización">Vulcanización</option><option value="BlueMax">BlueMax</option><option value="Supermercado">Supermercado</option><option value="Otro">Otro</option></select></div>
                             <div class="form-group"><label for="expense-amount">Monto ($):</label><input type="text" inputmode="numeric" id="expense-amount" name="expense-amount" required></div>
                             <div class="form-group full-width"><label for="expense-notes">Notas (Opcional):</label><input type="text" id="expense-notes" name="expense-notes"></div>
                         </div>
@@ -222,6 +288,10 @@
                 </div>
             </div>
         </div>
+        <!-- ================================== -->
+        <!-- FIN: VISTA DE CONDUCTOR            -->
+        <!-- ================================== -->
+        
         <div id="edit-driver-modal" class="modal-overlay hidden">
             <div class="modal-content">
                 <button id="close-edit-modal-btn" class="close-button">&times;</button>

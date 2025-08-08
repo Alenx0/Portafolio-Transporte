@@ -1,6 +1,6 @@
 # =================================================================
 # APLICACIÓN FLASK PARA TRANSPORTE UNIÓN SALAZAR
-# Versión 11.2 - Final Unificada con API de Rentabilidad
+# Versión 11.5 - API para Análisis de Rentabilidad Mensual
 # =================================================================
 
 from flask import Flask, render_template, request, jsonify
@@ -12,6 +12,9 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, date, timezone
 from decimal import Decimal
+# Nuevas importaciones para el cálculo mensual
+from collections import defaultdict
+from dateutil.relativedelta import relativedelta
 
 load_dotenv()
 
@@ -20,7 +23,6 @@ load_dotenv()
 # -----------------------------------------------------------------
 app = Flask(__name__)
 CORS(app)
-# Asegúrate de que esta línea se actualice para usar variables de entorno en el futuro
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://transporte_user:montana33@localhost:5432/transporte_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -30,7 +32,7 @@ migrate = Migrate(app, db)
 
 
 # -----------------------------------------------------------------
-# 2. DEFINICIÓN DE MODELOS
+# 2. DEFINICIÓN DE MODELOS (Sin cambios)
 # -----------------------------------------------------------------
 class User(db.Model):
     __tablename__ = 'user'
@@ -116,13 +118,13 @@ def inject_current_year():
 # --- Rutas de páginas ---
 @app.route('/')
 def index(): return render_template('index.html')
-
 @app.route('/acceso')
 def users_page(): return render_template('users.html')
 
-# --- Rutas de API de Autenticación y Usuarios ---
+# --- Rutas de API (sin cambios hasta la ruta de detalles de contrato) ---
 @app.route('/api/register', methods=['POST'])
 def register():
+    # ... (código sin cambios)
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password'):
         return jsonify({"success": False, "message": "Faltan datos."}), 400
@@ -137,6 +139,7 @@ def register():
 
 @app.route('/api/login', methods=['POST'])
 def login():
+    # ... (código sin cambios)
     data = request.get_json()
     username = data.get('username')
     user = User.query.filter(User.username.ilike(username)).first()
@@ -150,6 +153,7 @@ def login():
 
 @app.route('/api/user/shift', methods=['GET', 'POST'])
 def handle_shift():
+    # ... (código sin cambios)
     if request.method == 'POST':
         data = request.get_json()
         user = User.query.filter_by(username=data.get('username')).first_or_404()
@@ -164,16 +168,17 @@ def handle_shift():
         schedule = calculate_shift_schedule(user.shift_start_date, user.shift_type)
         return jsonify({"success": True, "schedule": schedule})
 
-# --- Rutas de API para Rendiciones y Gastos ---
 @app.route('/api/work_periods', methods=['POST'])
 def create_work_period():
+    # ... (código sin cambios)
     data = request.get_json()
     user = User.query.filter_by(username=data.get('username')).first_or_404()
     if WorkPeriod.query.filter_by(user_id=user.id, status='activo').first():
         return jsonify({"success": False, "message": "Ya existe un período de trabajo activo."}), 409
     new_period = WorkPeriod(
         patente=data.get('patente'), rut=data.get('rut'), trip_origin=data.get('trip_origin'),
-        trip_destination=data.get('trip_destination'), initial_amount=data.get('initial_amount'), worker=user
+        trip_destination=data.get('trip_destination'), initial_amount=data.get('initial_amount'), worker=user,
+        service_contract_id=data.get('service_contract_id') 
     )
     db.session.add(new_period)
     db.session.commit()
@@ -181,6 +186,7 @@ def create_work_period():
 
 @app.route('/api/work_periods/history', methods=['GET'])
 def get_work_period_history():
+    # ... (código sin cambios)
     username = request.args.get('username')
     user = User.query.filter_by(username=username).first_or_404()
     closed_periods = WorkPeriod.query.filter_by(user_id=user.id, status='cerrado').order_by(WorkPeriod.id.desc()).all()
@@ -189,6 +195,7 @@ def get_work_period_history():
 
 @app.route('/api/expense_data', methods=['GET'])
 def get_expense_data():
+    # ... (código sin cambios)
     user = User.query.filter_by(username=request.args.get('username')).first_or_404()
     active_period = WorkPeriod.query.filter_by(user_id=user.id, status='activo').first()
     if not active_period: return jsonify({"success": True, "active_period": None, "expenses": []})
@@ -197,6 +204,7 @@ def get_expense_data():
 
 @app.route('/api/expenses', methods=['POST'])
 def add_expense():
+    # ... (código sin cambios)
     data = request.get_json()
     work_period = WorkPeriod.query.get_or_404(data.get('period_id'))
     if work_period.status == 'cerrado': return jsonify({"success": False, "message": "No se puede añadir gastos a un período cerrado."}), 403
@@ -207,6 +215,7 @@ def add_expense():
 
 @app.route('/api/expenses/<int:expense_id>', methods=['DELETE'])
 def delete_expense(expense_id):
+    # ... (código sin cambios)
     expense = Expense.query.get_or_404(expense_id)
     if expense.period.status == 'cerrado':
         return jsonify({"success": False, "message": "No se pueden eliminar gastos de un período cerrado."}), 403
@@ -216,19 +225,21 @@ def delete_expense(expense_id):
 
 @app.route('/api/work_periods/<int:period_id>/close', methods=['POST'])
 def close_work_period(period_id):
+    # ... (código sin cambios)
     period = WorkPeriod.query.get_or_404(period_id)
     period.status = 'cerrado'
     db.session.commit()
     return jsonify({"success": True, "message": "El período de trabajo ha sido cerrado."})
 
-# --- Rutas de API de Administración ---
 @app.route('/api/admin/conductores', methods=['GET'])
 def get_conductores():
+    # ... (código sin cambios)
     conductores = User.query.filter_by(role='conductor').all()
     return jsonify({"success": True, "conductores": [c.to_dict() for c in conductores]})
 
 @app.route('/api/admin/conductor/<username>', methods=['PUT'])
 def update_conductor(username):
+    # ... (código sin cambios)
     user = User.query.filter_by(username=username, role='conductor').first_or_404()
     data = request.get_json()
     if 'rut' in data and data.get('rut'):
@@ -242,6 +253,7 @@ def update_conductor(username):
 
 @app.route('/api/admin/conductor_details/<username>', methods=['GET'])
 def get_conductor_details(username):
+    # ... (código sin cambios)
     user = User.query.filter_by(username=username, role='conductor').first_or_404()
     schedule = []
     if user.shift_type and user.shift_start_date:
@@ -260,6 +272,7 @@ def get_conductor_details(username):
 
 @app.route('/api/admin/user/<username>/set-password', methods=['POST'])
 def set_user_password(username):
+    # ... (código sin cambios)
     user = User.query.filter(User.username.ilike(username)).first()
     if not user:
         return jsonify({"success": False, "message": "Usuario no encontrado."}), 404
@@ -271,38 +284,29 @@ def set_user_password(username):
     db.session.commit()
     return jsonify({"success": True, "message": f"La contraseña para el usuario '{user.username}' ha sido actualizada."}), 200
 
-# ***** INICIO: RUTAS PARA GESTIONAR CLIENTES Y CONTRATOS *****
 @app.route('/api/admin/clients', methods=['POST'])
 def create_client():
-    """Crea un nuevo cliente en la base de datos."""
+    # ... (código sin cambios)
     data = request.get_json()
     if not data or not data.get('name'):
         return jsonify({"success": False, "message": "El nombre del cliente es obligatorio."}), 400
     if Client.query.filter_by(name=data['name']).first():
         return jsonify({"success": False, "message": "Un cliente con ese nombre ya existe."}), 409
-    new_client = Client(
-        name=data['name'],
-        contact_person=data.get('contact_person'),
-        contact_email=data.get('contact_email')
-    )
+    new_client = Client(name=data['name'], contact_person=data.get('contact_person'), contact_email=data.get('contact_email'))
     db.session.add(new_client)
     db.session.commit()
-    return jsonify({
-        "success": True, 
-        "message": "Cliente creado exitosamente.",
-        "client": {"id": new_client.id, "name": new_client.name}
-    }), 201
+    return jsonify({"success": True, "message": "Cliente creado exitosamente.", "client": {"id": new_client.id, "name": new_client.name}}), 201
 
 @app.route('/api/admin/clients', methods=['GET'])
 def get_clients():
-    """Obtiene una lista de todos los clientes."""
+    # ... (código sin cambios)
     all_clients = Client.query.order_by(Client.name).all()
     clients_list = [{"id": client.id, "name": client.name} for client in all_clients]
     return jsonify({"success": True, "clients": clients_list})
 
 @app.route('/api/admin/contracts', methods=['POST'])
 def create_contract():
-    """Crea un nuevo contrato de servicio."""
+    # ... (código sin cambios)
     data = request.get_json()
     required_fields = ['name', 'total_revenue', 'client_id', 'start_date']
     if not all(field in data for field in required_fields):
@@ -311,21 +315,108 @@ def create_contract():
     if not client:
         return jsonify({"success": False, "message": "El cliente especificado no existe."}), 404
     new_contract = ServiceContract(
-        name=data['name'],
-        total_revenue=data['total_revenue'],
+        name=data['name'], total_revenue=data['total_revenue'],
         start_date=datetime.strptime(data['start_date'], '%Y-%m-%d').date(),
         end_date=datetime.strptime(data['end_date'], '%Y-%m-%d').date() if data.get('end_date') else None,
-        status=data.get('status', 'activo'),
-        client_id=data['client_id']
+        status=data.get('status', 'activo'), client_id=data['client_id']
     )
     db.session.add(new_contract)
     db.session.commit()
     return jsonify({"success": True, "message": "Contrato creado exitosamente."}), 201
-# ***** FIN: RUTAS PARA GESTIONAR CLIENTES Y CONTRATOS *****
+
+@app.route('/api/admin/contracts', methods=['GET'])
+def get_contracts():
+    # ... (código sin cambios)
+    contracts_with_clients = db.session.query(ServiceContract, Client.name).join(Client, ServiceContract.client_id == Client.id).order_by(ServiceContract.start_date.desc()).all()
+    contracts_list = []
+    for contract, client_name in contracts_with_clients:
+        contracts_list.append({
+            "id": contract.id, "name": contract.name, "start_date": contract.start_date.isoformat(),
+            "end_date": contract.end_date.isoformat() if contract.end_date else None,
+            "total_revenue": str(contract.total_revenue), "status": contract.status,
+            "client_id": contract.client_id, "client_name": client_name
+        })
+    return jsonify({"success": True, "contracts": contracts_list})
+
+@app.route('/api/contracts/active', methods=['GET'])
+def get_active_contracts():
+    # ... (código sin cambios)
+    active_contracts = ServiceContract.query.filter_by(status='activo').order_by(ServiceContract.name).all()
+    contracts_list = [{"id": contract.id, "name": contract.name} for contract in active_contracts]
+    return jsonify({"success": True, "contracts": contracts_list})
+
+# ***** INICIO: RUTA DE DETALLES DE CONTRATO MODIFICADA *****
+@app.route('/api/admin/contracts/<int:contract_id>', methods=['GET'])
+def get_contract_details(contract_id):
+    """
+    Obtiene los detalles de un contrato, con un desglose de rentabilidad MES A MES.
+    """
+    contract_data = db.session.query(
+        ServiceContract, Client.name
+    ).join(Client, ServiceContract.client_id == Client.id).filter(ServiceContract.id == contract_id).first()
+
+    if not contract_data:
+        return jsonify({"success": False, "message": "Contrato no encontrado."}), 404
+
+    contract, client_name = contract_data
+
+    end_date = contract.end_date or date.today()
+    num_months = (end_date.year - contract.start_date.year) * 12 + (end_date.month - contract.start_date.month) + 1
+    monthly_revenue = contract.total_revenue / num_months if num_months > 0 else Decimal(0)
+
+    monthly_breakdown = defaultdict(lambda: {'driver_expenses': Decimal(0)})
+
+    for period in contract.work_periods:
+        for expense in period.expenses:
+            month_key = expense.date.strftime('%Y-%m')
+            monthly_breakdown[month_key]['driver_expenses'] += expense.amount
+    
+    formatted_breakdown = []
+    grand_total_expenses = Decimal(0)
+    
+    current_month_start = contract.start_date.replace(day=1)
+    end_month_start = end_date.replace(day=1)
+    
+    temp_date = current_month_start
+    while temp_date <= end_month_start:
+        month_key = temp_date.strftime('%Y-%m')
+        month_data = monthly_breakdown[month_key]
+        
+        driver_expenses = month_data['driver_expenses']
+        profit = monthly_revenue - driver_expenses
+        grand_total_expenses += driver_expenses
+
+        formatted_breakdown.append({
+            "month": temp_date.strftime('%B %Y').capitalize(), # Formato "Agosto 2025"
+            "revenue": str(monthly_revenue),
+            "driver_expenses": str(driver_expenses),
+            "profit": str(profit)
+        })
+        temp_date += relativedelta(months=1)
+
+    grand_total_profit = contract.total_revenue - grand_total_expenses
+    grand_total_margin = (grand_total_profit / contract.total_revenue * 100) if contract.total_revenue > 0 else 0
+
+    details = {
+        "id": contract.id,
+        "name": contract.name,
+        "client_name": client_name,
+        "monthly_breakdown": formatted_breakdown,
+        "grand_totals": {
+            "total_revenue": str(contract.total_revenue),
+            "total_expenses": str(grand_total_expenses),
+            "total_profit": str(grand_total_profit),
+            "total_margin": f"{grand_total_margin:.2f}"
+        }
+    }
+
+    return jsonify({"success": True, "details": details})
+# ***** FIN: RUTA DE DETALLES DE CONTRATO MODIFICADA *****
 
 
 # --- Funciones de Ayuda ---
 def calculate_shift_schedule(start_date, shift_type, num_days=365):
+    # ... (código existente sin cambios)
     try:
         work_days, off_days = map(int, shift_type.split('x'))
         cycle_length = work_days + off_days

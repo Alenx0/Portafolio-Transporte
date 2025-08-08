@@ -1,7 +1,7 @@
 /*
  * ---------------------------------------------------
  * SCRIPT PARA LA PÁGINA DE USUARIOS (LOGIN Y DASHBOARD)
- * Versión 20.1 - Completa con Gestión de Clientes y Contratos
+ * Versión 21.2 - Funcionalidad Completa de Análisis Mensual
  * ---------------------------------------------------
  */
 document.addEventListener('DOMContentLoaded', function() {
@@ -30,14 +30,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const adminPanelContainer = document.getElementById('admin-panel-container');
     const adminDriverDetailsView = document.getElementById('admin-driver-details-view');
 
-    // ***** INICIO: NUEVOS SELECTORES PARA CONTRATOS *****
+    // Panel de Admin: Contratos
     const createClientForm = document.getElementById('create-client-form');
     const createContractForm = document.getElementById('create-contract-form');
     const clientMessage = document.getElementById('client-message');
     const contractMessage = document.getElementById('contract-message');
     const contractClientSelect = document.getElementById('contract-client-select');
     const contractRevenueInput = document.getElementById('contract-revenue');
-    // ***** FIN: NUEVOS SELECTORES PARA CONTRATOS *****
+    const contractsListContainer = document.getElementById('contracts-list-container');
+    const contractsMainView = document.getElementById('contracts-main-view');
+    const adminContractDetailsView = document.getElementById('admin-contract-details-view');
+    const backToContractsListBtn = document.getElementById('back-to-contracts-list-btn');
+    const monthlyBreakdownContainer = document.getElementById('monthly-breakdown-container');
     
     // Panel de Conductor
     const allTabs = document.querySelectorAll('.tab-link');
@@ -48,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const displayShiftType = document.getElementById('display-shift-type');
     const displayShiftStartDate = document.getElementById('display-shift-start-date');
     const changeShiftBtn = document.getElementById('change-shift-btn');
+    const periodContractSelect = document.getElementById('period-contract-select');
     
     // Modal de Edición
     const editDriverModal = document.getElementById('edit-driver-modal');
@@ -66,13 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===============================================
     // FUNCIONES GLOBALES DE UI
     // ===============================================
-    function showSpinner() {
-        if (globalSpinner) globalSpinner.classList.remove('hidden');
-    }
-
-    function hideSpinner() {
-        if (globalSpinner) globalSpinner.classList.add('hidden');
-    }
+    function showSpinner() { if (globalSpinner) globalSpinner.classList.remove('hidden'); }
+    function hideSpinner() { if (globalSpinner) globalSpinner.classList.add('hidden'); }
 
     // ===============================================
     // 2. COMUNICACIÓN CON LA API
@@ -146,21 +146,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container) return;
         const monthTitleDisplay = container.querySelector('.month-title');
         const monthGridContainer = container.querySelector('.month-grid-container, .admin-month-grid-container');
-        const legend = container.querySelector('.calendar-legend');
         if (!monthTitleDisplay || !monthGridContainer) return;
 
         if (!schedule || schedule.length === 0) {
             monthGridContainer.innerHTML = '<p>No hay un turno configurado.</p>';
-            monthTitleDisplay.textContent = 'Calendario de Turnos';
-            if (legend) legend.style.display = 'none';
             return;
         }
-        
-        if (legend) legend.style.display = 'flex';
+
         const year = displayDate.getFullYear();
         const month = displayDate.getMonth();
-        const monthName = displayDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
-        monthTitleDisplay.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+        monthTitleDisplay.textContent = displayDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
         monthGridContainer.innerHTML = '';
         const monthGrid = document.createElement('div');
         monthGrid.className = 'month-grid';
@@ -171,9 +166,8 @@ document.addEventListener('DOMContentLoaded', function() {
             monthGrid.appendChild(dayHeader);
         });
         const firstDayOfMonth = new Date(year, month, 1);
-        let dayOfWeek = firstDayOfMonth.getDay();
-        if (dayOfWeek === 0) dayOfWeek = 7;
-        for (let i = 1; i < dayOfWeek; i++) {
+        let dayOfWeek = firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1;
+        for (let i = 0; i < dayOfWeek; i++) {
             monthGrid.appendChild(document.createElement('div'));
         }
         const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -206,11 +200,15 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('summary-spent').textContent = format(totalSpent);
         document.getElementById('summary-balance').textContent = format(balance);
         if (tableBody) {
-            tableBody.innerHTML = '';
-            expenses.forEach(exp => {
-                const row = tableBody.insertRow();
-                row.innerHTML = `<td>${exp.date}</td><td>${exp.category}</td><td>${exp.notes || ''}</td><td>${format(exp.amount)}</td><td><button class="delete-btn" data-id="${exp.id}" title="Eliminar este gasto"><i class="fas fa-trash-alt"></i></button></td>`;
-            });
+            tableBody.innerHTML = expenses.map(exp => `
+                <tr>
+                    <td>${exp.date}</td>
+                    <td>${exp.category}</td>
+                    <td>${exp.notes || ''}</td>
+                    <td>${format(exp.amount)}</td>
+                    <td><button class="delete-btn" data-id="${exp.id}" title="Eliminar"><i class="fas fa-trash-alt"></i></button></td>
+                </tr>
+            `).join('');
         }
     }
 
@@ -273,7 +271,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (historyData.success) renderHistoryList(historyData.history, 'history-list-container');
     }
 
-    // ***** INICIO: NUEVA FUNCIÓN PARA RENDERIZAR CLIENTES *****
     function renderClientDropdown(clients) {
         if (!contractClientSelect) return;
         contractClientSelect.innerHTML = '<option value="">-- Selecciona un Cliente --</option>';
@@ -288,45 +285,125 @@ document.addEventListener('DOMContentLoaded', function() {
             contractClientSelect.innerHTML = '<option value="">No hay clientes creados</option>';
         }
     }
-    // ***** FIN: NUEVA FUNCIÓN PARA RENDERIZAR CLIENTES *****
+
+    function renderContractsList(contracts) {
+        if (!contractsListContainer) return;
+        if (!contracts || contracts.length === 0) {
+            contractsListContainer.innerHTML = '<p>No hay contratos registrados. ¡Crea uno nuevo!</p>';
+            return;
+        }
+        const format = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n);
+        contractsListContainer.innerHTML = `
+            <div class="table-container">
+                <table id="contracts-table">
+                    <thead><tr><th>Cliente</th><th>Nombre Contrato</th><th>Fecha Inicio</th><th>Estado</th><th>Ingreso Total</th><th>Acciones</th></tr></thead>
+                    <tbody>
+                        ${contracts.map(contract => `
+                            <tr>
+                                <td>${contract.client_name}</td>
+                                <td>${contract.name}</td>
+                                <td>${contract.start_date}</td>
+                                <td><span class="status-badge status-${contract.status}">${contract.status}</span></td>
+                                <td>${format(contract.total_revenue)}</td>
+                                <td><button class="view-btn action-btn" data-contract-id="${contract.id}">Ver Detalles</button></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+    }
+
+    function renderContractDetails(details) {
+        if (!adminContractDetailsView) return;
+        const format = (n) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n);
+        
+        adminContractDetailsView.querySelector('#details-contract-name').innerHTML = `Detalle: <strong>${details.name}</strong> <span class="client-badge">${details.client_name}</span>`;
+
+        // Renderizar la tabla de desglose mensual
+        if (monthlyBreakdownContainer) {
+            monthlyBreakdownContainer.innerHTML = `
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mes</th>
+                                <th>Ingreso Mensual</th>
+                                <th>Gastos de Conductor</th>
+                                <th>Ganancia / Pérdida</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${details.monthly_breakdown.map(month => `
+                                <tr class="${parseFloat(month.profit) < 0 ? 'negative-profit' : ''}">
+                                    <td>${month.month}</td>
+                                    <td>${format(month.revenue)}</td>
+                                    <td>${format(month.driver_expenses)}</td>
+                                    <td><strong>${format(month.profit)}</strong></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // Renderizar los totales generales en las tarjetas KPI
+        const { grand_totals } = details;
+        adminContractDetailsView.querySelector('#grand-total-revenue').textContent = format(grand_totals.total_revenue);
+        adminContractDetailsView.querySelector('#grand-total-expenses').textContent = format(grand_totals.total_expenses);
+        adminContractDetailsView.querySelector('#grand-total-profit').textContent = format(grand_totals.total_profit);
+        adminContractDetailsView.querySelector('#grand-total-margin').textContent = `${grand_totals.total_margin}%`;
+    }
+    
+    function renderActiveContractsDropdown(contracts) {
+        if (!periodContractSelect) return;
+        periodContractSelect.innerHTML = '<option value="">-- Ninguno --</option>';
+        if (contracts && contracts.length > 0) {
+            contracts.forEach(contract => {
+                const option = document.createElement('option');
+                option.value = contract.id;
+                option.textContent = contract.name;
+                periodContractSelect.appendChild(option);
+            });
+        }
+    }
 
     function setupDashboardForRole(user) {
         const isAdmin = user.role === 'admin';
         conductorView.classList.toggle('hidden', isAdmin);
         adminView.classList.toggle('hidden', !isAdmin);
-        
         if (isAdmin) {
-            const firstTab = adminView.querySelector('.tab-link');
-            if (firstTab) firstTab.click();
+            adminView.querySelector('.tab-link')?.click();
         } else {
-             const firstTab = conductorView.querySelector('.tab-link');
-            if (firstTab) firstTab.click();
+            conductorView.querySelector('.tab-link')?.click();
         }
     }
 
     async function loadDashboardData() {
         welcomeUsername.textContent = currentUser.username;
         setupDashboardForRole(currentUser);
-
         if (currentUser.role === 'admin') {
-            // Carga en paralelo los conductores y los clientes
-            const [conductoresData, clientsData] = await Promise.all([
-                apiCall('/api/admin/conductores', 'GET').catch(e => console.error("Error cargando conductores", e)),
-                apiCall('/api/admin/clients', 'GET').catch(e => console.error("Error cargando clientes", e))
+            const [conductoresData, clientsData, contractsData] = await Promise.all([
+                apiCall('/api/admin/conductores', 'GET'),
+                apiCall('/api/admin/clients', 'GET'),
+                apiCall('/api/admin/contracts', 'GET')
             ]);
-            
-            if (conductoresData && conductoresData.success) {
-                renderDriverList(conductoresData.conductores);
-            }
-            if (clientsData && clientsData.success) {
-                renderClientDropdown(clientsData.clients);
-            }
+            if (conductoresData?.success) renderDriverList(conductoresData.conductores);
+            if (clientsData?.success) renderClientDropdown(clientsData.clients);
+            if (contractsData?.success) renderContractsList(contractsData.contracts);
         } else {
-            // Lógica existente para el conductor
+            const [scheduleData, contractsData] = await Promise.all([
+                apiCall(`/api/user/shift?username=${currentUser.username}`, 'GET'),
+                apiCall('/api/contracts/active', 'GET')
+            ]);
             renderShiftConfigUI();
-            const scheduleData = await apiCall(`/api/user/shift?username=${currentUser.username}`, 'GET').catch(() => ({}));
-            userSchedule = scheduleData.success ? scheduleData.schedule : [];
-            renderCalendar(userSchedule, currentCalendarDate, 'calendar-container');
+            if (scheduleData?.success) {
+                userSchedule = scheduleData.schedule;
+                renderCalendar(userSchedule, currentCalendarDate, 'calendar-container');
+            }
+            if (contractsData?.success) {
+                renderActiveContractsDropdown(contractsData.contracts);
+            }
             await refreshExpenseAndHistoryData();
         }
     }
@@ -370,10 +447,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         logoutButton?.addEventListener('click', () => {
             localStorage.removeItem('loggedInUser');
-            currentUser = null;
-            activePeriod = null;
-            loginForm.reset();
-            registerForm.reset();
+            currentUser = null; activePeriod = null;
+            loginForm.reset(); registerForm.reset();
             showSection('login');
         });
 
@@ -389,11 +464,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 tab.classList.add('active');
                 document.getElementById(targetId)?.classList.add('active');
+                
+                if (targetId === 'admin-conductores-tab') {
+                    if(adminPanelContainer) adminPanelContainer.classList.remove('hidden');
+                    if(adminDriverDetailsView) adminDriverDetailsView.classList.add('hidden');
+                }
             });
         });
         
         document.addEventListener('click', async (e) => {
-            const target = e.target;
+            const { target } = e;
+            const viewContractBtn = target.closest('.view-btn[data-contract-id]');
+            if (viewContractBtn) {
+                const contractId = viewContractBtn.dataset.contractId;
+                try {
+                    const response = await apiCall(`/api/admin/contracts/${contractId}`, 'GET');
+                    if (response.success) {
+                        renderContractDetails(response.details);
+                        contractsMainView.classList.add('hidden');
+                        adminContractDetailsView.classList.remove('hidden');
+                    }
+                } catch(error) {
+                    alert('Error al cargar los detalles del contrato.');
+                }
+                return;
+            }
+
             const historySummary = target.closest('.history-summary');
             if (historySummary) {
                 const detailsDiv = document.getElementById(historySummary.dataset.target);
@@ -404,53 +500,66 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (adminView && !adminView.classList.contains('hidden')) {
-                const viewButton = target.closest('.view-btn');
+                const viewButton = target.closest('.view-btn:not([data-contract-id])');
                 if (viewButton) {
                     const driverItem = viewButton.closest('.driver-item');
-                    const conductorData = JSON.parse(driverItem.dataset.conductor);
-                    try {
-                        const data = await apiCall(`/api/admin/conductor_details/${conductorData.username}`, 'GET');
-                        if (data.success) {
-                            adminPanelContainer.classList.add('hidden');
-                            adminDriverDetailsView.classList.remove('hidden');
-                            document.getElementById('details-driver-name').innerHTML = `Detalles de: ${data.conductor.username}<div style="font-size: 0.8em; color: #555; margin-top: 5px;">RUT: ${data.conductor.rut || 'No asignado'} | Teléfono: ${data.conductor.phone || 'No asignado'}</div>`;
-                            adminSchedule = data.schedule;
-                            renderAdminExpenseDetails(data.active_period, data.history);
-                            renderCalendar(adminSchedule, adminCalendarDate, 'admin-calendar-container');
-                            const firstAdminTab = adminDriverDetailsView.querySelector('.tab-link');
-                            if (firstAdminTab) firstAdminTab.click();
+                    if (driverItem) {
+                        const conductorData = JSON.parse(driverItem.dataset.conductor);
+                        try {
+                            const data = await apiCall(`/api/admin/conductor_details/${conductorData.username}`, 'GET');
+                            if (data.success) {
+                                adminPanelContainer.classList.add('hidden');
+                                adminDriverDetailsView.classList.remove('hidden');
+                                document.getElementById('details-driver-name').innerHTML = `Detalles de: ${data.conductor.username}<div style="font-size: 0.8em; color: #555; margin-top: 5px;">RUT: ${data.conductor.rut || 'No asignado'} | Teléfono: ${data.conductor.phone || 'No asignado'}</div>`;
+                                adminSchedule = data.schedule;
+                                renderAdminExpenseDetails(data.active_period, data.history);
+                                renderCalendar(adminSchedule, adminCalendarDate, 'admin-calendar-container');
+                                adminDriverDetailsView.querySelector('.tab-link')?.click();
+                            }
+                        } catch (error) {
+                            alert('No se pudieron cargar los detalles del conductor.');
                         }
-                    } catch (error) {
-                        alert('No se pudieron cargar los detalles del conductor.');
                     }
                 }
                 const editButton = target.closest('.edit-btn');
                 if (editButton) {
                     const driverItem = editButton.closest('.driver-item');
-                    const conductorData = JSON.parse(driverItem.dataset.conductor);
-                    openEditModal(conductorData);
+                    if(driverItem) {
+                        const conductorData = JSON.parse(driverItem.dataset.conductor);
+                        openEditModal(conductorData);
+                    }
                 }
             }
 
             if (conductorView && !conductorView.classList.contains('hidden')) {
                 const deleteButton = target.closest('.delete-btn');
                 if (deleteButton && activePeriod) {
-                    if (confirm('¿Estás seguro de que quieres eliminar este gasto?')) {
+                    if (confirm('¿Estás seguro?')) {
                         await apiCall(`/api/expenses/${deleteButton.dataset.id}`, 'DELETE');
                         await refreshExpenseAndHistoryData();
                     }
                 }
                 const closeButton = target.closest('#close-period-btn');
                 if (closeButton && activePeriod) {
-                    if (confirm('¿Estás seguro de que quieres cerrar este viaje? No podrás añadir más gastos.')) {
+                    if (confirm('¿Estás seguro de cerrar este viaje?')) {
                         await apiCall(`/api/work_periods/${activePeriod.id}/close`, 'POST');
-                        alert('Viaje cerrado con éxito.');
+                        alert('Viaje cerrado.');
                         await refreshExpenseAndHistoryData();
                     }
                 }
             }
         });
+
+        backToContractsListBtn?.addEventListener('click', () => {
+            contractsMainView.classList.remove('hidden');
+            adminContractDetailsView.classList.add('hidden');
+        });
         
+        document.getElementById('back-to-list-btn')?.addEventListener('click', () => {
+            adminPanelContainer.classList.remove('hidden');
+            adminDriverDetailsView.classList.add('hidden');
+        });
+
         editDriverForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = editDriverForm.querySelector('#edit-username').value;
@@ -473,16 +582,19 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target === editDriverModal) closeEditModal();
         });
         
-        document.getElementById('back-to-list-btn')?.addEventListener('click', () => {
-            adminPanelContainer.classList.remove('hidden');
-            adminDriverDetailsView.classList.add('hidden');
-        });
-        
         document.getElementById('start-period-form')?.addEventListener('submit', async(e) => {
             e.preventDefault();
             const form = e.target;
             const unformattedAmount = form['initial-amount'].value.replace(/\./g, '');
-            const periodData = { username: currentUser.username, patente: form.patente.value, rut: form.rut.value, trip_origin: form['trip-origin'].value, trip_destination: form['trip-destination'].value, initial_amount: unformattedAmount };
+            const periodData = { 
+                username: currentUser.username, 
+                patente: form.patente.value, 
+                rut: form.rut.value, 
+                trip_origin: form['trip-origin'].value, 
+                trip_destination: form['trip-destination'].value, 
+                initial_amount: unformattedAmount,
+                service_contract_id: periodContractSelect.value || null 
+            };
             try {
                 await apiCall('/api/work_periods', 'POST', periodData);
                 await refreshExpenseAndHistoryData();
@@ -494,7 +606,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('add-expense-form')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!activePeriod) return alert("No hay un período activo para añadir gastos.");
+            if (!activePeriod) return;
             const form = e.target;
             const unformattedAmount = form['expense-amount'].value.replace(/\./g, '');
             const expenseData = { period_id: activePeriod.id, category: form['expense-category'].value, amount: unformattedAmount, notes: form['expense-notes'].value };
@@ -507,14 +619,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        expenseAmountInput?.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
-            e.target.value = value ? new Intl.NumberFormat('es-CL').format(value) : '';
-        });
-
-        initialAmountInput?.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
-            e.target.value = value ? new Intl.NumberFormat('es-CL').format(value) : '';
+        [expenseAmountInput, initialAmountInput, contractRevenueInput].forEach(input => {
+            input?.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/[.,]/g, '').replace(/[^0-9]/g, '');
+                e.target.value = value ? new Intl.NumberFormat('es-CL').format(value) : '';
+            });
         });
         
         changeShiftBtn?.addEventListener('click', () => {
@@ -571,7 +680,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // ***** INICIO: NUEVOS EVENT LISTENERS PARA CONTRATOS *****
         createClientForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const clientData = {
@@ -585,7 +693,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 showMessage(clientMessage, response.message, true);
                 createClientForm.reset();
                 
-                // Refrescamos la lista de clientes en el otro formulario
                 const clientsData = await apiCall('/api/admin/clients', 'GET');
                 if (clientsData.success) {
                     renderClientDropdown(clientsData.clients);
@@ -615,17 +722,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const response = await apiCall('/api/admin/contracts', 'POST', contractData);
                 showMessage(contractMessage, response.message, true);
                 createContractForm.reset();
+                const contractsData = await apiCall('/api/admin/contracts', 'GET');
+                if (contractsData.success) {
+                    renderContractsList(contractsData.contracts);
+                }
             } catch (error) {
                 showMessage(contractMessage, error.message || 'Error al crear el contrato.', false);
             }
         });
-        
-        contractRevenueInput?.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/[.,]/g, '').replace(/[^0-9]/g, '');
-            e.target.value = value ? new Intl.NumberFormat('es-CL').format(value) : '';
-        });
-        // ***** FIN: NUEVOS EVENT LISTENERS PARA CONTRATOS *****
     }
 
     init();
 });
+s
